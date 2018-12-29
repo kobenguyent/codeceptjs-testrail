@@ -1,0 +1,4 @@
+.eslintignore
+.eslintrc
+node_modules/
+.DS_Store
