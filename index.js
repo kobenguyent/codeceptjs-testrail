@@ -1,7 +1,6 @@
 const event = require('codeceptjs').event;
 const Testrail = require('testrail-api');
-require('../utils');
- 
+
 const defaultConfig = {
 	host: '',
 	user: '',
