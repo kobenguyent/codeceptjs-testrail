@@ -42,13 +42,13 @@ module.exports = (config) => {
 
 	const testrail = new Testrail(config);
 
-	if (config.suiteId) {
-		suiteId = config.suiteId
-	} else {
+	if (!config.suiteId) {
 		testrail.getSuites(config.projectId, function (err, response, suites) {
 			if (err) throw new Error(`Something is wrong while getting suites of project ID ${config.projectId}. Please check ${JSON.stringify(err)}`);
 			suiteId = suites[0];
 		});
+	} else {
+		suiteId = config.suiteId
 	}
 
 	event.dispatcher.on(event.suite.before, () => {
