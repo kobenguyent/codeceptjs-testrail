@@ -38,6 +38,10 @@ module.exports = (config) => {
 	let runId;
 	let caseId;
 
+	if (!config.projectId) throw new Error('Please provide project id');
+
+	const testrail = new Testrail(config);
+
 	if (config.suiteId) {
 		suiteId = config.suiteId
 	} else {
@@ -46,10 +50,6 @@ module.exports = (config) => {
 			suiteId = suites[0];
 		});
 	}
-
-	if (!config.projectId) throw new Error('Please provide project id');
-
-	const testrail = new Testrail(config);
 
 	event.dispatcher.on(event.suite.before, () => {
 		runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
