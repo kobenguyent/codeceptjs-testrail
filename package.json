@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-testrail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CodeceptJS plugin for TestRail",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,8 @@
   "keywords": [
     "codeceptJS",
     "codeceptjs",
-    "testrail"
+    "testrail",
+    "testrail-plugin"
   ],
   "author": "Thanh Nguyen <peter.nguyentr@gmail.com>",
   "license": "MIT",
