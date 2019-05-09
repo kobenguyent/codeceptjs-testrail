@@ -1,4 +1,4 @@
-const event = require('../event');
+const event = require('codeceptjs').event;
 const Testrail = require('testrail-api');
 require('../utils');
  
