@@ -73,7 +73,7 @@ module.exports = (config) => {
  
 	event.dispatcher.on(event.suite.before, () => {
 		testrail.addRun(config.projectId, { name: runName }, (err, response, run) => {
-			if (err) throw new Error(`Something is wrong while adding new run. Please check ${err}`);
+			if (err) throw new Error(`Something is wrong while adding new run. Please check ${err.message}`);
 			runId = run.id;
 		});
 	});
