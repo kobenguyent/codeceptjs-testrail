@@ -2,13 +2,14 @@
  
   Enables Testrail integration.
  
-  ##### Configuration
+##### Configuration
  
   Add this plugin to config file:
  
   ```js
- "plugins": {
-     "testrail": {
+ plugins: {
+     testrail: {
+        require: 'codeceptjs-testrail',
         host: 'https://peternguyentr.testrail.io',
         user: 'username',
         password: 'password or api key'
