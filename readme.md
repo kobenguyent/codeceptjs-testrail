@@ -1,6 +1,13 @@
 ##### Testrail
  
   Enables Testrail integration.
+
+##### Requirement
+
+  To use this custom plugin
+  ```sh
+  npm i codeceptjs-testrail --save-dev
+  ```
  
 ##### Configuration
  
