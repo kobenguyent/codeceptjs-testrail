@@ -65,15 +65,16 @@ module.exports = (config) => {
  
 	if (config.host === '' || config.user === '' || config.password === '') throw new Error('Please provide proper Testrail host or credentials');
 	if (!config.projectId) throw new Error('Please provide project id');
-	const runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
+	let runName;
 	let runId;
 	let caseId;
  
 	const testrail = new Testrail(config);
  
 	event.dispatcher.on(event.suite.before, () => {
-		testrail.addRun(config.projectId, { name: config.runName }, (err, response, run) => {
-			if (err) throw new Error(`Something is wrong while adding new run. Please check ${err.message}`);
+		runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
+		testrail.addRun(config.projectId, { name: runName }, (err, response, run) => {
+			if (err) throw new Error(`Something is wrong while adding new run with name ${runName}. Please check ${JSON.stringify(err)}`);
 			runId = run.id;
 		});
 	});
