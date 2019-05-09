@@ -8,6 +8,16 @@
   ```sh
   npm i codeceptjs-testrail --save-dev
   ```
+
+  **Note:** you should include the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
+
+  An example:
+  ```js
+  Scenario('Search function is displayed @C12345', (I, homePage) => {
+    I.seeElement(homePage.searchTextbox);
+    I.seeElement(homePage.searchButton);
+  });
+  ```
  
 ##### Configuration
  
