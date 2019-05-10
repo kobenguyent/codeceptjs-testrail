@@ -32,37 +32,32 @@ module.exports = (config) => {
 	config = Object.assign(defaultConfig, config);
 
 	if (config.host === '' || config.user === '' || config.password === '') throw new Error('Please provide proper Testrail host or credentials');
+	if (!config.projectId) throw new Error('Please provide project id');
+
+	const testrail = new Testrail(config);
 
 	let suiteId;
 	let runName;
 	let runId;
 	let caseId;
 
-	if (!config.projectId) throw new Error('Please provide project id');
+	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
 
-	const testrail = new Testrail(config);
-
-	if (!config.suiteId) {
+	if (config.suiteId === undefined || config.suiteId === null) {
 		testrail.getSuites(config.projectId, function (err, response, suites) {
 			if (err) throw new Error(`Something is wrong while getting suites of project ID ${config.projectId}. Please check ${JSON.stringify(err)}`);
-			suiteId = suites[0];
+			suiteId = suites[0].id;
 		});
 	} else {
 		suiteId = config.suiteId
 	}
 
-	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
+	event.dispatcher.on(event.test.started, (test) => {
+		caseId = tcRegex.exec(test.title)[0].substring(1);
 		testrail.addRun(config.projectId, { suite_id: suiteId, name: runName }, (err, response, run) => {
 			if (err) throw new Error(`Something is wrong while adding new run with name ${runName}. Please check ${JSON.stringify(err)}`);
 			runId = run.id;
-	});
-
-	event.dispatcher.on(event.test.started, (test) => {
-		caseId = tcRegex.exec(test.title)[0].substring(1);
-	});
-
-	event.dispatcher.on(event.test.finished, (test) => {
-		caseId = tcRegex.exec(test.title)[0].substring(1);
+		});
 	});
 
 	event.dispatcher.on(event.test.passed, () => {
