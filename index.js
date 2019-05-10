@@ -43,32 +43,37 @@ module.exports = (config) => {
 
 	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
 
+	function _addTestRun(projectId, suiteId, runName) {
+		testrail.addRun(projectId, { suite_id: suiteId, name: runName }, (err, response, run) => {
+			if (err) throw new Error(`Something is wrong while adding new run with name ${runName}. Please check ${JSON.stringify(err)}`);
+			runId = run.id;
+		});
+	}
+
 	if (config.suiteId === undefined || config.suiteId === null) {
 		testrail.getSuites(config.projectId, function (err, response, suites) {
-			if (err) throw new Error(`Something is wrong while getting suites of project ID ${config.projectId}. Please check ${JSON.stringify(err)}`);
+			if (err) throw new Error(`Something is wrong while getting suites of project ID: ${config.projectId}. Please check ${JSON.stringify(err)}`);
 			suiteId = suites[0].id;
+			_addTestRun(config.projectId, suiteId, runName);
 		});
 	} else {
-		suiteId = config.suiteId
+		suiteId = config.suiteId;
+		_addTestRun(config.projectId, suiteId, runName);
 	}
 
 	event.dispatcher.on(event.test.started, (test) => {
 		caseId = tcRegex.exec(test.title)[0].substring(1);
-		testrail.addRun(config.projectId, { suite_id: suiteId, name: runName }, (err, response, run) => {
-			if (err) throw new Error(`Something is wrong while adding new run with name ${runName}. Please check ${JSON.stringify(err)}`);
-			runId = run.id;
-		});
 	});
 
-	event.dispatcher.on(event.test.passed, () => {
+	event.dispatcher.on(event.test.passed, (test) => {
 		testrail.addResultForCase(runId, caseId, testCase.passed, (err) => {
-			if (err) throw new Error(`Something is wrong while adding result for a test case. Please check ${JSON.stringify(err)}`);
+			if (err) throw new Error(`Something is wrong while adding result for a test case ${test.title}. Please check ${JSON.stringify(err)}`);
 		});
 	});
 
 	event.dispatcher.on(event.test.failed, () => {
 		testrail.addResultForCase(runId, caseId, testCase.failed, (err) => {
-			if (err) throw new Error(`Something is wrong while adding result for a test case. Please check ${JSON.stringify(err)}`);
+			if (err) throw new Error(`Something is wrong while adding result for a test case ${test.title}. Please check ${JSON.stringify(err)}`);
 		});
 	});
 
