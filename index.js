@@ -51,12 +51,10 @@ module.exports = (config) => {
 		suiteId = config.suiteId
 	}
 
-	event.dispatcher.on(event.suite.before, () => {
-		runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
+	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
 		testrail.addRun(config.projectId, { suite_id: suiteId, name: runName }, (err, response, run) => {
 			if (err) throw new Error(`Something is wrong while adding new run with name ${runName}. Please check ${JSON.stringify(err)}`);
 			runId = run.id;
-		});
 	});
 
 	event.dispatcher.on(event.test.started, (test) => {
