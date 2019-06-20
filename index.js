@@ -11,7 +11,7 @@ const testCase = {
 	passed: { status_id: 1, comment: 'This test passed' },
 	failed: { status_id: 5, comment: 'This test failed' },
 };
-const tcRegex = /([C])\w+/g;
+const tcRegex = /(\@[C])\w+/g;
 
 function getToday() {
 	const today = new Date();
@@ -62,7 +62,7 @@ module.exports = (config) => {
 	}
 
 	event.dispatcher.on(event.test.started, (test) => {
-		caseId = tcRegex.exec(test.title)[0].substring(1);
+		caseId = tcRegex.exec(test.title)[0].substring(2);
 	});
 
 	event.dispatcher.on(event.test.passed, (test) => {
