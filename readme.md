@@ -1,3 +1,5 @@
+[![NPM](https://nodei.co/npm/codeceptjs-testrail.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/codeceptjs-testrail/)
+
 ##### Testrail
  
   Enables Testrail integration.
