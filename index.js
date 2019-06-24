@@ -44,9 +44,15 @@ module.exports = (config) => {
 	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
 
 	function _addTestRun(projectId, suiteId, runName) {
-		testrail.addRun(projectId, { suite_id: suiteId, name: runName }, (err, response, run) => {
+		testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false }, (err, response, run) => {
 			if (err) throw new Error(`Something is wrong while adding new run with name ${runName}. Please check ${JSON.stringify(err)}`);
 			runId = run.id;
+		});
+	}
+
+	function _updateTestRun(runId, caseId) {
+		testrail.updateRun(runId, { case_ids: [caseId] }, (err, response, run) => {
+			if (err) throw new Error(`Something is wrong while updating run with name ${runName}. Please check ${JSON.stringify(err)}`);
 		});
 	}
 
@@ -63,6 +69,7 @@ module.exports = (config) => {
 
 	event.dispatcher.on(event.test.started, (test) => {
 		caseId = tcRegex.exec(test.title)[0].substring(2);
+		_updateTestRun(runId, caseId);
 	});
 
 	event.dispatcher.on(event.test.passed, (test) => {
