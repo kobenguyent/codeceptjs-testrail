@@ -78,7 +78,7 @@ module.exports = (config) => {
 		});
 	});
 
-	event.dispatcher.on(event.test.failed, () => {
+	event.dispatcher.on(event.test.failed, (test) => {
 		testrail.addResultForCase(runId, caseId, testCase.failed, (err) => {
 			if (err) throw new Error(`Something is wrong while adding result for a test case ${test.title}. Please check ${JSON.stringify(err)}`);
 		});
