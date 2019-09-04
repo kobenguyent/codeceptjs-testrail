@@ -11,7 +11,6 @@ const testCase = {
 	passed: { status_id: 1, comment: 'This test passed' },
 	failed: { status_id: 5, comment: 'This test failed' },
 };
-const tcRegex = /(\@[C])\w+/g;
 
 function getToday() {
 	const today = new Date();
@@ -39,7 +38,9 @@ module.exports = (config) => {
 	let suiteId;
 	let runName;
 	let runId;
-	let caseId;
+	let failedTests = [];
+	let errors = {};
+	let passedTests = [];
 
 	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
 
@@ -50,10 +51,8 @@ module.exports = (config) => {
 		});
 	}
 
-	function _updateTestRun(runId, caseId) {
-		testrail.updateRun(runId, { case_ids: [caseId] }, (err, response, run) => {
-			if (err) throw new Error(`Something is wrong while updating run with name ${runName}. Please check ${JSON.stringify(err)}`);
-		});
+	async function _updateTestRun(runId, ids) {
+		await testrail.updateRun(runId, { case_ids: ids });
 	}
 
 	if (config.suiteId === undefined || config.suiteId === null) {
@@ -67,20 +66,37 @@ module.exports = (config) => {
 		_addTestRun(config.projectId, suiteId, runName);
 	}
 
-	event.dispatcher.on(event.test.started, (test) => {
-		caseId = tcRegex.exec(test.title)[0].substring(2);
-		_updateTestRun(runId, caseId);
+	event.dispatcher.on(event.test.failed, (test, err) => {
+		test.tags.forEach(tag => {
+			failedTests.push(tag.split('@C')[1]);
+			errors[tag.split('@C')[1]] = JSON.stringify(err);
+		});
+		
 	});
 
 	event.dispatcher.on(event.test.passed, (test) => {
-		testrail.addResultForCase(runId, caseId, testCase.passed, (err) => {
-			if (err) throw new Error(`Something is wrong while adding result for a test case ${test.title}. Please check ${JSON.stringify(err)}`);
+		test.tags.forEach(tag => {
+			passedTests.push(tag.split('@C')[1]);
 		});
 	});
 
-	event.dispatcher.on(event.test.failed, (test) => {
-		testrail.addResultForCase(runId, caseId, testCase.failed, (err) => {
-			if (err) throw new Error(`Something is wrong while adding result for a test case ${test.title}. Please check ${JSON.stringify(err)}`);
+	event.dispatcher.on(event.all.result, async () => {
+		let ids;
+		ids = failedTests.concat(passedTests);
+
+		await _updateTestRun(runId, ids);
+
+		passedTests.forEach(id => {
+			testrail.addResultForCase(runId, id, testCase.passed, (err) => {
+				if (err) throw new Error(`Something is wrong while adding result for a test case ${id}. Please check ${JSON.stringify(err)}`);
+			});
+		});
+
+		failedTests.forEach(id => {
+			let failedCase = { status_id: 5, comment: `This test is failed due to ${JSON.stringify(errors)}` }
+			testrail.addResultForCase(runId, id, failedCase, (err) => {
+				if (err) throw new Error(`Something is wrong while adding result for a test case ${id}. Please check ${JSON.stringify(err)}`);
+			});
 		});
 	});
 
