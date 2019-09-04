@@ -5,6 +5,7 @@ const defaultConfig = {
 	host: '',
 	user: '',
 	password: '',
+	enabled: false
 };
 
 const testCase = {
