@@ -51,10 +51,8 @@ module.exports = (config) => {
 		});
 	}
 
-	function _updateTestRun(runId, ids) {
-		testrail.updateRun(runId, { case_ids: ids }, (err, response, run) => {
-			if (err) throw new Error(`Something is wrong while updating run with name ${runName}. Please check ${JSON.stringify(err)}`);
-		});
+	async function _updateTestRun(runId, ids) {
+		await testrail.updateRun(runId, { case_ids: ids });
 	}
 
 	if (config.suiteId === undefined || config.suiteId === null) {
@@ -85,8 +83,7 @@ module.exports = (config) => {
 	event.dispatcher.on(event.all.result, async () => {
 		let ids;
 		ids = failedTests.concat(passedTests);
-		console.log(ids);
-		
+
 		await _updateTestRun(runId, ids);
 
 		passedTests.forEach(id => {
