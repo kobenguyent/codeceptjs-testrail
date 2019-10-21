@@ -70,9 +70,8 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.failed, (test, err) => {
 		test.tags.forEach(tag => {
 			failedTests.push(tag.split('@C')[1]);
-			errors[tag.split('@C')[1]] = JSON.stringify(err);
+			errors[tag.split('@C')[1]] = err;
 		});
-		
 	});
 
 	event.dispatcher.on(event.test.passed, (test) => {
@@ -94,7 +93,13 @@ module.exports = (config) => {
 		});
 
 		failedTests.forEach(id => {
-			let failedCase = { status_id: 5, comment: `This test is failed due to ${JSON.stringify(errors)}` }
+			let errorString = '';
+			if (errors['1']['message']) {
+				errorString = errors['1']['message'].replace(/\u001b\[.*?m/g, '');
+			} else {
+				errorString = errors['1'];
+			}
+			let failedCase = { status_id: 5, comment: `This test is failed due to **${errorString}**` }
 			testrail.addResultForCase(runId, id, failedCase, (err) => {
 				if (err) throw new Error(`Something is wrong while adding result for a test case ${id}. Please check ${JSON.stringify(err)}`);
 			});
