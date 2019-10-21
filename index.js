@@ -94,10 +94,10 @@ module.exports = (config) => {
 
 		failedTests.forEach(id => {
 			let errorString = '';
-			if (errors['1']['message']) {
-				errorString = errors['1']['message'].replace(/\u001b\[.*?m/g, '');
+			if (errors[id]['message']) {
+				errorString = errors[id]['message'].replace(/\u001b\[.*?m/g, '');
 			} else {
-				errorString = errors['1'];
+				errorString = errors[id];
 			}
 			let failedCase = { status_id: 5, comment: `This test is failed due to **${errorString}**` }
 			testrail.addResultForCase(runId, id, failedCase, (err) => {
