@@ -99,7 +99,7 @@ module.exports = (config) => {
 			} else {
 				errorString = errors[id];
 			}
-			let failedCase = { status_id: 5, comment: `This test is failed due to **${errorString}**` }
+			let failedCase = { status_id: 5, comment: `This test is failed due to **${errorString}**` };
 			testrail.addResultForCase(runId, id, failedCase, (err) => {
 				if (err) throw new Error(`Something is wrong while adding result for a test case ${id}. Please check ${JSON.stringify(err)}`);
 			});
