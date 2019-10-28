@@ -1,4 +1,3 @@
-
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e935df05fa244cf1bf435c3f59a66fe4)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-testrail?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-testrail&amp;utm_campaign=Badge_Grade)
 
 [![NPM](https://nodei.co/npm/codeceptjs-testrail.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/codeceptjs-testrail/)
@@ -11,7 +10,6 @@ Enables Testrail integration with CodeceptJS. The test run is created automatica
 
 ##### Requirement
 
-
 To use this custom plugin
 
 ```sh
@@ -22,16 +20,14 @@ npm i codeceptjs-testrail --save-dev
 
 **Note:** you should include the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
 
-  
 An example:
-
 ```js
-
-Scenario('Search function is displayed @C12345', (I, homePage) => {
-  I.seeElement(homePage.searchTextbox);
-  I.seeElement(homePage.searchButton);
-});
-
+...
+  Scenario('Search function is displayed @C12345', (I, homePage) => {
+    I.seeElement(homePage.searchTextbox);
+    I.seeElement(homePage.searchButton);
+  });
+...
 ```
 
 ##### Configuration
