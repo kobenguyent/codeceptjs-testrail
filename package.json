@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/PeterNgTr/codeceptjs-testrail#readme",
   "dependencies": {
-    "form-data": "^2.5.1",
+    "form-data": "^3.0.0",
     "sprintf-js": "^1.1.1",
     "testrail-api": "^1.3.5"
   },
@@ -28,8 +28,8 @@
     "lint": "eslint . --fix"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint": "^6.7.1",
+    "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.12.0"
   }
 }
