@@ -1,6 +1,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e935df05fa244cf1bf435c3f59a66fe4)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-testrail?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-testrail&amp;utm_campaign=Badge_Grade)
 
-[![NPM](https://nodei.co/npm/codeceptjs-testrail.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/codeceptjs-testrail/)
+[![NPM](https://nodei.co/npm/codeceptjs-testrail.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/codeceptjs-testrail/) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-testrail.svg)](https://greenkeeper.io/)
 
 ##### Testrail
 
