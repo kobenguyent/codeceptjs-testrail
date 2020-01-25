@@ -40,10 +40,8 @@ function getToday() {
 	const yyyy = today.getFullYear();
 
 	let hour = today.getHours();
-    let minute = today.getMinutes();
+	let minute = today.getMinutes();
 
-
-	
 	if (dd < 10) {
 		dd = `0${dd}`;
 	}
