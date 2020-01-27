@@ -52,7 +52,7 @@ function getToday() {
 		minute = `0${minute}`;
 	}
 
-	return `√ ${dd}/${mm}/${yyyy} ${hour}:${minute}`; 
+	return `${dd}/${mm}/${yyyy} ${hour}:${minute}`; 
 }
 
 class TestRail {
