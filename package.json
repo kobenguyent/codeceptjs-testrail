@@ -22,7 +22,7 @@
   "dependencies": {
     "form-data": "^2.5.1",
     "loglevel": "^1.6.7",
-    "sprintf-js": "^1.1.1",
+    "sprintf-js": "^1.1.1"
   },
   "scripts": {
     "lint": "eslint . --fix"
