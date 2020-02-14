@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-testrail",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "CodeceptJS plugin for TestRail",
   "main": "index.js",
   "repository": {
@@ -21,8 +21,8 @@
   "homepage": "https://github.com/PeterNgTr/codeceptjs-testrail#readme",
   "dependencies": {
     "form-data": "^2.5.1",
+    "loglevel": "^1.6.7",
     "sprintf-js": "^1.1.1",
-    "testrail-api": "^1.3.5"
   },
   "scripts": {
     "lint": "eslint . --fix"

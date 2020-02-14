@@ -1,3 +1,4 @@
+const log = require('loglevel');
 const event = require('codeceptjs').event;
 const axios = require('axios');
 const FormData = require('form-data');
@@ -34,34 +35,12 @@ const testCase = {
 	failed: { status_id: 5, comment: 'This test failed' },
 };
 
-function getToday() {
-	const today = new Date();
-	let dd = today.getDate();
-	let mm = today.getMonth() + 1; // January is 0!
-	const yyyy = today.getFullYear();
-
-	let hour = today.getHours();
-	let minute = today.getMinutes();
-
-	if (dd < 10) {
-		dd = `0${dd}`;
-	}
-	if (mm < 10) {
-		mm = `0${mm}`;
-	}
-	if (minute < 10) {
-		minute = `0${minute}`;
-	}
-
-	return `${dd}/${mm}/${yyyy} ${hour}:${minute}`;
-}
-
 class TestRail {
 	constructor(defaultConfig) {
 		this.host = defaultConfig.host;
 		this.user = defaultConfig.user;
 		this.password = defaultConfig.password;
-
+		this.auth = { username: this.user, password: this.password }
 		this.uri = '/index.php?/api/v2/';
 
 		axios.defaults.baseURL = this.host + this.uri;
@@ -72,17 +51,14 @@ class TestRail {
 			const res = await axios({
 				method: 'get',
 				url: 'get_suites/' + projectId,
-				auth: {
-					username: this.user,
-					password: this.password
-				},
+				auth: this.auth,
 				headers: {
 					'content-type': 'application/json'
 				}
 			});
 			return res.data;
 		} catch (error) {
-			console.log(error.response.data.error);			
+			log.error(`Cannnot get suites due to ${error.response.data.error}`);
 		}
 	}
 
@@ -92,14 +68,11 @@ class TestRail {
 				method: 'post',
 				url: 'add_run/' + projectId,
 				data,
-				auth: {
-					username: this.user,
-					password: this.password
-				}
+				auth: this.auth
 			});
 			return res.data;
 		} catch (error) {
-			console.log(error.response.data.error);
+			log.error(`Cannnot add new run due to ${error.response.data.error}`);
 		}
 	}
 
@@ -109,34 +82,25 @@ class TestRail {
 				method: 'post',
 				url: 'update_run/' + runId,
 				data,
-				auth: {
-					username: this.user,
-					password: this.password
-				}
+				auth: this.auth
 			});
 			return res.data;
 		} catch (error) {
-			console.log(error.response.data.error);
+			log.error(`Cannnot update run due to ${error.response.data.error}`);
 		}
 
 	}
 
 	async addResultForCase(runId, caseId, data) {
-		try {
-			let res = await axios({
-				method: 'post',
-				url: 'add_result_for_case/' + runId + '/' + caseId,
-				data,
-				auth: {
-					username: this.user,
-					password: this.password
-				}
+		return axios({
+			method: 'post',
+			url: 'add_result_for_case/' + runId + '/' + caseId,
+			data,
+			auth: this.auth
+		}).then(res => { return res.data })
+			.catch(error => {
+				log.error(`Cannnot add result for case due to ${error.response.data.error}`);
 			});
-			return res.data;
-		} catch (error) {
-			console.log(error.response.data.error);
-		}
-
 	}
 
 	async addAttachmentToResult(resultId, imageFile) {
@@ -153,7 +117,7 @@ class TestRail {
 			},
 			headers: form.getHeaders()
 		}).catch(err => {
-			throw Error(`Cannot attach file due to ${err}`);
+			log.error(`Cannot attach file due to ${err}`);
 		});
 	}
 }
@@ -162,7 +126,7 @@ module.exports = (config) => {
 	config = Object.assign(defaultConfig, config);
 
 	if (config.host === '' || config.user === '' || config.password === '') throw new Error('Please provide proper Testrail host or credentials');
-	if (!config.projectId) throw new Error('Please provide project id');
+	if (!config.projectId) throw new Error('Please provide project id in config file');
 
 	const testrail = new TestRail(config);
 
@@ -170,17 +134,17 @@ module.exports = (config) => {
 	let runName;
 	let runId;
 	let failedTests = [];
+	let passedTests = [];
 	let errors = {};
 	let attachments = {};
-	let passedTests = [];
 
-	runName = config.runName ? config.runName : `This is a new test run on ${getToday()}`;
+	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
 
 	async function _updateTestRun(runId, ids) {
 		try {
 			await testrail.updateRun(runId, { case_ids: ids });
 		} catch (error) {
-			console.log(error.response.data.error);
+			log.error(`Cannnot update run due to ${error.response.data.error}`);
 		}
 	}
 
@@ -188,7 +152,7 @@ module.exports = (config) => {
 		try {
 			return await testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false });
 		} catch (error) {
-			console.log(`Cannot create new testrun due to ${JSON.stringify(error)}`);
+			log.error(`Cannot create new testrun due to ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -202,10 +166,20 @@ module.exports = (config) => {
 		test.tags.forEach(async (tag) => {
 			const uuid = Math.floor(new Date().getTime() / 1000);
 			const fileName = `${uuid}.failed.png`;
-			helper.saveScreenshot(fileName);
-			failedTests.push({id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s`});
-			errors[tag.split('@C')[1]] = err;
-			attachments[tag.split('@C')[1]] = fileName;
+			try {
+				log.debug('Saving the screenshot...');
+				if (helper) {
+					helper.saveScreenshot(fileName);
+				}
+			} catch (error) {
+				log.error(`Cannot save screenshot due to ${error}`);
+			}
+
+			if (tag.includes('@C')) {
+				failedTests.push({ id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
+				errors[tag.split('@C')[1]] = err;
+				attachments[tag.split('@C')[1]] = fileName;
+			}
 		});
 	});
 
@@ -213,7 +187,9 @@ module.exports = (config) => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
 		test.tags.forEach(tag => {
-			passedTests.push({id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s`});
+			if (tag.includes('@C')) {
+				passedTests.push({ id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
+			}
 		});
 	});
 
@@ -245,27 +221,31 @@ module.exports = (config) => {
 		passedTests.forEach(test => {
 			testCase.passed.elapsed = test.elapsed;
 			testrail.addResultForCase(runId, test.id, testCase.passed, (err) => {
-				if (err) throw new Error(`Something is wrong while adding result for a test case ${test.id}. Please check ${JSON.stringify(err)}`);
+				if (err) log.error(`Cannot add result for test case: ${test.id}. Please check ${JSON.stringify(err)}`);
 			});
 		});
 
 		failedTests.forEach(test => {
 			let errorString = '';
-			console.log(test);
 			if (errors[test.id]['message']) {
 				errorString = errors[test.id]['message'].replace(/\u001b\[.*?m/g, '');
 			} else {
 				errorString = errors[test.id];
 			}
-			let failedCase = { status_id: 5, comment: `This test is failed due to **${errorString}**`, elapsed: test.elapsed };
-			testrail.addResultForCase(runId, test.id, failedCase).then(res => {
+
+			testCase.failed.comment = `This test is failed due to **${errorString}**`;
+			testCase.failed.elapsed = test.elapsed;
+			testrail.addResultForCase(runId, test.id, testCase.failed).then(res => {
 				let resultId = res.id;
-				testrail.addAttachmentToResult(resultId, attachments[test.id]);
-				try {
-					fs.unlinkSync(global.output_dir + '/' + attachments[test.id]);
-					//file removed
-				} catch (err) {
-					throw Error(`Cannot remove file due to ${err}`);
+				if (helper) {
+					testrail.addAttachmentToResult(resultId, attachments[test.id]);
+					try {
+						log.debug('Remove the screenshot file afterwards');
+						fs.unlinkSync(global.output_dir + '/' + attachments[test.id]);
+						log.debug('File is removed');
+					} catch (err) {
+						log.error(`Cannot remove file due to ${err}`);
+					}
 				}
 			});
 		});
@@ -273,3 +253,25 @@ module.exports = (config) => {
 
 	return this;
 };
+
+function _getToday() {
+	const today = new Date();
+	let dd = today.getDate();
+	let mm = today.getMonth() + 1; // January is 0!
+	const yyyy = today.getFullYear();
+
+	let hour = today.getHours();
+	let minute = today.getMinutes();
+
+	if (dd < 10) {
+		dd = `0${dd}`;
+	}
+	if (mm < 10) {
+		mm = `0${mm}`;
+	}
+	if (minute < 10) {
+		minute = `0${minute}`;
+	}
+
+	return `${dd}/${mm}/${yyyy} ${hour}:${minute}`;
+}
