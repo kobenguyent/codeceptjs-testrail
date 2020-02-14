@@ -40,7 +40,7 @@ class TestRail {
 		this.host = defaultConfig.host;
 		this.user = defaultConfig.user;
 		this.password = defaultConfig.password;
-		this.auth = { username: this.user, password: this.password }
+		this.auth = { username: this.user, password: this.password };
 		this.uri = '/index.php?/api/v2/';
 
 		axios.defaults.baseURL = this.host + this.uri;
@@ -97,10 +97,9 @@ class TestRail {
 			url: 'add_result_for_case/' + runId + '/' + caseId,
 			data,
 			auth: this.auth
-		}).then(res => { return res.data })
-			.catch(error => {
-				log.error(`Cannnot add result for case due to ${error.response.data.error}`);
-			});
+		}).then(res => { return res.data; }).catch(error => {
+			log.error(`Cannnot add result for case due to ${error.response.data.error}`);
+		});
 	}
 
 	async addAttachmentToResult(resultId, imageFile) {
