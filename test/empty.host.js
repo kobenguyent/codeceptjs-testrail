@@ -1,15 +1,15 @@
 exports.config = {
-	tests: "./scenario.js",
-	output: "./output",
+	tests: './scenario.js',
+	output: './output',
 	helpers: {
 		REST: {
-			endpoint: "https://reqres.in",
+			endpoint: 'https://reqres.in',
 		}
 	},
 	include: {},
 	bootstrap: null,
 	mocha: {},
-	name: "codeceptjs-rest-demo",
+	name: 'codeceptjs-rest-demo',
 	plugins: {
 		testrail: {
 			require: '../index.js',
