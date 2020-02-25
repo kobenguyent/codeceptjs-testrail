@@ -4,6 +4,8 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const Container = require('codeceptjs').container;
+const output = require('codeceptjs').output;
+output.level(3);
 const helpers = Container.helpers();
 let helper;
 
@@ -58,7 +60,7 @@ class TestRail {
 			});
 			return res.data;
 		} catch (error) {
-			log.error(`Cannnot get suites due to ${error.response.data.error}`);
+			output.error(`Cannnot get suites due to ${error.response.data.error}`);
 		}
 	}
 
@@ -72,7 +74,7 @@ class TestRail {
 			});
 			return res.data;
 		} catch (error) {
-			log.error(`Cannnot add new run due to ${error.response.data.error}`);
+			output.error(`Cannnot add new run due to ${error.response.data.error}`);
 		}
 	}
 
@@ -84,9 +86,10 @@ class TestRail {
 				data,
 				auth: this.auth
 			});
+			output.log(`The run with id: ${runId} is updated`);
 			return res.data;
 		} catch (error) {
-			log.error(`Cannnot update run due to ${error.response.data.error}`);
+			output.error(`Cannnot update run due to ${error.response.data.error}`);
 		}
 
 	}
@@ -97,8 +100,12 @@ class TestRail {
 			url: 'add_result_for_case/' + runId + '/' + caseId,
 			data,
 			auth: this.auth
-		}).then(res => { return res.data; }).catch(error => {
-			log.error(`Cannnot add result for case due to ${error.response.data.error}`);
+		}).then((res) => { 
+			output.log(`The reponse is ${JSON.stringify(res.data)}`);
+			output.log(`The case ${caseId} on run ${runId} is updated`);
+			return res.data; 
+		}).catch(error => {
+			output.log(`Cannnot add result for case due to ${error.response.data.error}`);
 		});
 	}
 
@@ -116,7 +123,7 @@ class TestRail {
 			},
 			headers: form.getHeaders()
 		}).catch(err => {
-			log.error(`Cannot attach file due to ${err}`);
+			output.error(`Cannot attach file due to ${err}`);
 		});
 	}
 }
@@ -143,15 +150,15 @@ module.exports = (config) => {
 		try {
 			await testrail.updateRun(runId, { case_ids: ids });
 		} catch (error) {
-			log.error(`Cannnot update run due to ${error.response.data.error}`);
+			output.error(`Cannnot update run due to ${error.response.data.error}`);
 		}
 	}
 
 	async function _addTestRun(projectId, suiteId, runName) {
 		try {
-			return await testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false });
+			return testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false });
 		} catch (error) {
-			log.error(`Cannot create new testrun due to ${JSON.stringify(error)}`);
+			output.error(`Cannot create new testrun due to ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -171,7 +178,7 @@ module.exports = (config) => {
 					helper.saveScreenshot(fileName);
 				}
 			} catch (error) {
-				log.error(`Cannot save screenshot due to ${error}`);
+				output.error(`Cannot save screenshot due to ${error}`);
 			}
 
 			if (tag.includes('@C')) {
@@ -209,10 +216,15 @@ module.exports = (config) => {
 			const suiteId = res[0].id;
 			res = await _addTestRun(config.projectId, suiteId, runName);
 			runId = res.id;
+
 		} else {
 			suiteId = config.suiteId;
-			let res = await _addTestRun(config.projectId, suiteId, runName);
-			runId = res.id;
+			try {
+				const res = await _addTestRun(config.projectId, suiteId, runName);
+				runId = res.id;
+			} catch (error) {
+				output.error(error);
+			}
 		}
 
 		await _updateTestRun(runId, ids);
@@ -220,7 +232,7 @@ module.exports = (config) => {
 		passedTests.forEach(test => {
 			testCase.passed.elapsed = test.elapsed;
 			testrail.addResultForCase(runId, test.id, testCase.passed, (err) => {
-				if (err) log.error(`Cannot add result for test case: ${test.id}. Please check ${JSON.stringify(err)}`);
+				if (err) output.error(`Cannot add result for test case: ${test.id}. Please check ${JSON.stringify(err)}`);
 			});
 		});
 
@@ -243,7 +255,7 @@ module.exports = (config) => {
 						fs.unlinkSync(global.output_dir + '/' + attachments[test.id]);
 						log.debug('File is removed');
 					} catch (err) {
-						log.error(`Cannot remove file due to ${err}`);
+						output.error(`Cannot remove file due to ${err}`);
 					}
 				}
 			});
