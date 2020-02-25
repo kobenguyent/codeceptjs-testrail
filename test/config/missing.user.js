@@ -12,7 +12,7 @@ exports.config = {
 	name: 'codeceptjs-rest-demo',
 	plugins: {
 		testrail: {
-			require: '../index.js',
+			require: '../../index.js',
 			host: 'https://peterngtr1.testrail.io',
 			user: '',
 			password: 'pass',

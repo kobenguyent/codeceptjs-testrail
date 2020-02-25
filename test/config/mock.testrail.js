@@ -1,6 +1,6 @@
 exports.config = {
-	tests: './scenario.js',
-	output: './output',
+	tests: '../scenario.js',
+	output: '../output',
 	helpers: {
 		REST: {
 			endpoint: 'https://reqres.in',
@@ -12,7 +12,7 @@ exports.config = {
 	name: 'codeceptjs-rest-demo',
 	plugins: {
 		testrail: {
-			require: '../index.js',
+			require: '../../index.js',
 			host: 'http://demo4928585.mockable.io',
 			user: 'test',
 			password: 'pass',

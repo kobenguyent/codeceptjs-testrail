@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 const { expect } = require('chai');
-const runner = './node_modules/.bin/codeceptjs run scenario.js';
+const runner = './node_modules/.bin/codeceptjs run';
 const emptyHostConfigFile = './test/config/empty.host.js';
 const missingUser = './test/config/missing.user.js';
 const missingPassword = './test/config/missing.password.js';
