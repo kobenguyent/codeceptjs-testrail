@@ -1,11 +1,11 @@
 const { exec } = require('child_process');
 const { expect } = require('chai');
 const runner = './node_modules/.bin/codeceptjs run scenario.js';
-const emptyHostConfigFile = './test/empty.host.js';
-const missingUser = './test/missing.user.js';
-const missingPassword = './test/missing.password.js';
-const missingProjectId = './test/missing.projectId.js';
-const mockTestrailConfig = './test/mock.testrail.js';
+const emptyHostConfigFile = './test/config/empty.host.js';
+const missingUser = './test/config/missing.user.js';
+const missingPassword = './test/config/missing.password.js';
+const missingProjectId = './test/config/missing.projectId.js';
+const mockTestrailConfig = './test/config/mock.testrail.js';
 
 describe('Incomplete info', () => {
 	describe('Missing host', () => {
