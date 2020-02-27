@@ -212,48 +212,52 @@ module.exports = (config) => {
 			}
 		});
 
-		if (config.suiteId === undefined || config.suiteId === null) {
-			let res = await testrail.getSuites(config.projectId);
-			const suiteId = res[0].id;
-			res = await _addTestRun(config.projectId, suiteId, runName);
-			runId = res.id;
-
-		} else {
-			suiteId = config.suiteId;
-			try {
-				const res = await _addTestRun(config.projectId, suiteId, runName);
+		if (ids.length > 0) {
+			if (config.suiteId === undefined || config.suiteId === null) {
+				let res = await testrail.getSuites(config.projectId);
+				const suiteId = res[0].id;
+				res = await _addTestRun(config.projectId, suiteId, runName);
 				runId = res.id;
-			} catch (error) {
-				output.error(error);
-			}
-		}
-
-		await _updateTestRun(runId, ids);
-
-		passedTests.forEach(test => {
-			testCase.passed.elapsed = test.elapsed;
-			testrail.addResultForCase(runId, test.id, testCase.passed, (err) => {
-				if (err) output.error(`Cannot add result for test case: ${test.id}. Please check ${JSON.stringify(err)}`);
-			});
-		});
-
-		failedTests.forEach(test => {
-			let errorString = '';
-			if (errors[test.id]['message']) {
-				errorString = errors[test.id]['message'].replace(/\u001b\[.*?m/g, '');
+	
 			} else {
-				errorString = errors[test.id];
-			}
-
-			testCase.failed.comment = `This test is failed due to **${errorString}**`;
-			testCase.failed.elapsed = test.elapsed;
-			testrail.addResultForCase(runId, test.id, testCase.failed).then(res => {
-				let resultId = res.id;
-				if (helper) {
-					testrail.addAttachmentToResult(resultId, attachments[test.id]);
+				suiteId = config.suiteId;
+				try {
+					const res = await _addTestRun(config.projectId, suiteId, runName);
+					runId = res.id;
+				} catch (error) {
+					output.error(error);
 				}
+			}
+	
+			await _updateTestRun(runId, ids);
+	
+			passedTests.forEach(test => {
+				testCase.passed.elapsed = test.elapsed;
+				testrail.addResultForCase(runId, test.id, testCase.passed, (err) => {
+					if (err) output.error(`Cannot add result for test case: ${test.id}. Please check ${JSON.stringify(err)}`);
+				});
 			});
-		});
+	
+			failedTests.forEach(test => {
+				let errorString = '';
+				if (errors[test.id]['message']) {
+					errorString = errors[test.id]['message'].replace(/\u001b\[.*?m/g, '');
+				} else {
+					errorString = errors[test.id];
+				}
+	
+				testCase.failed.comment = `This test is failed due to **${errorString}**`;
+				testCase.failed.elapsed = test.elapsed;
+				testrail.addResultForCase(runId, test.id, testCase.failed).then(res => {
+					let resultId = res.id;
+					if (helper) {
+						testrail.addAttachmentToResult(resultId, attachments[test.id]);
+					}
+				});
+			});
+		} else {
+			output.log('There is no TC, hence no test run is created');
+		}
 	});
 
 	return this;

@@ -15,7 +15,13 @@ To use this custom plugin
 npm i codeceptjs-testrail --save
 ```
 
-**Note:** you should include the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
+**Note:** 
+- You should include the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
+- To avoid creating multiple testruns, add `--suites` to `run-workers` command
+
+```sh
+npx codeceptjs run-workers 3 --suites
+```
 
 An example:
 
