@@ -250,13 +250,6 @@ module.exports = (config) => {
 				let resultId = res.id;
 				if (helper) {
 					testrail.addAttachmentToResult(resultId, attachments[test.id]);
-					try {
-						log.debug('Remove the screenshot file afterwards');
-						fs.unlinkSync(global.output_dir + '/' + attachments[test.id]);
-						log.debug('File is removed');
-					} catch (err) {
-						output.error(`Cannot remove file due to ${err}`);
-					}
 				}
 			});
 		});
