@@ -5,6 +5,7 @@ const FormData = require('form-data');
 const fs = require('fs');
 const Container = require('codeceptjs').container;
 const output = require('codeceptjs').output;
+const path = require('path');
 output.level(3);
 const helpers = Container.helpers();
 let helper;
@@ -111,7 +112,7 @@ class TestRail {
 
 	async addAttachmentToResult(resultId, imageFile) {
 		var form = new FormData();
-		form.append('attachment', fs.createReadStream(global.output_dir + '/' + imageFile));
+		form.append('attachment', fs.createReadStream(path.join(global.output_dir, imageFile.toString())));
 
 		axios({
 			method: 'post',
