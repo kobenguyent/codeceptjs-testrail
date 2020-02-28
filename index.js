@@ -1,4 +1,3 @@
-const log = require('loglevel');
 const event = require('codeceptjs').event;
 const axios = require('axios');
 const FormData = require('form-data');
@@ -34,8 +33,8 @@ const defaultConfig = {
 };
 
 const testCase = {
-	passed: { status_id: 1, comment: 'This test passed' },
-	failed: { status_id: 5, comment: 'This test failed' },
+	passed: { status_id: 1 },
+	failed: { status_id: 5 },
 };
 
 class TestRail {
@@ -43,10 +42,13 @@ class TestRail {
 		this.host = defaultConfig.host;
 		this.user = defaultConfig.user;
 		this.password = defaultConfig.password;
-		this.auth = { username: this.user, password: this.password };
 		this.uri = '/index.php?/api/v2/';
 
+		const b = new Buffer(`${this.user}:${this.password}`);
+		const basicAuth = b.toString('base64');
+
 		axios.defaults.baseURL = this.host + this.uri;
+		axios.defaults.headers.Authorization = `Basic ${basicAuth}`
 	}
 
 	async getSuites(projectId) {
@@ -54,14 +56,13 @@ class TestRail {
 			const res = await axios({
 				method: 'get',
 				url: 'get_suites/' + projectId,
-				auth: this.auth,
 				headers: {
 					'content-type': 'application/json'
 				}
 			});
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot get suites due to ${error.response.data.error}`);
+			output.error(`Cannnot get suites due to ${error}`);
 		}
 	}
 
@@ -71,11 +72,11 @@ class TestRail {
 				method: 'post',
 				url: 'add_run/' + projectId,
 				data,
-				auth: this.auth
 			});
+
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot add new run due to ${error.response.data.error}`);
+			output.error(`Cannnot add new run due to ${error}`);
 		}
 	}
 
@@ -85,28 +86,41 @@ class TestRail {
 				method: 'post',
 				url: 'update_run/' + runId,
 				data,
-				auth: this.auth
 			});
 			output.log(`The run with id: ${runId} is updated`);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot update run due to ${error.response.data.error}`);
+			output.error(`Cannnot update run due to ${error}`);
 		}
 
 	}
 
-	async addResultForCase(runId, caseId, data) {
+	async getResultsForCase(runId, caseId) {
 		return axios({
-			method: 'post',
-			url: 'add_result_for_case/' + runId + '/' + caseId,
-			data,
-			auth: this.auth
+			method: 'get',
+			url: 'get_results_for_case/' + runId + '/' + caseId,
+			headers: {
+				'content-type': 'application/json'
+			}
 		}).then((res) => { 
 			output.log(`The reponse is ${JSON.stringify(res.data)}`);
 			output.log(`The case ${caseId} on run ${runId} is updated`);
 			return res.data; 
 		}).catch(error => {
-			output.log(`Cannnot add result for case due to ${error.response.data.error}`);
+			output.log(`Cannnot get results for case ${caseId} on run ${runId} due to ${error}`);
+		});
+	}
+
+	async addResultsForCases(runId, data) {
+		return axios({
+			method: 'post',
+			url: 'add_results_for_cases/' + runId,
+			data,
+		}).then((res) => { 
+			output.log(`The reponse is ${JSON.stringify(res.data)}`);
+			return res.data; 
+		}).catch(error => {
+			output.log(`Cannnot add result for case due to ${error}`);
 		});
 	}
 
@@ -118,10 +132,6 @@ class TestRail {
 			method: 'post',
 			data: form,
 			url: 'add_attachment_to_result/' + resultId,
-			auth: {
-				username: this.user,
-				password: this.password
-			},
 			headers: form.getHeaders()
 		}).catch(err => {
 			output.error(`Cannot attach file due to ${err}`);
@@ -151,7 +161,7 @@ module.exports = (config) => {
 		try {
 			await testrail.updateRun(runId, { case_ids: ids });
 		} catch (error) {
-			output.error(`Cannnot update run due to ${error.response.data.error}`);
+			output.error(`Cannnot update run due to ${error}`);
 		}
 	}
 
@@ -174,7 +184,7 @@ module.exports = (config) => {
 			const uuid = Math.floor(new Date().getTime() / 1000);
 			const fileName = `${uuid}.failed.png`;
 			try {
-				log.debug('Saving the screenshot...');
+				output.log('Saving the screenshot...');
 				if (helper) {
 					helper.saveScreenshot(fileName);
 				}
@@ -183,7 +193,7 @@ module.exports = (config) => {
 			}
 
 			if (tag.includes('@C')) {
-				failedTests.push({ id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
+				failedTests.push({ case_id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
 				errors[tag.split('@C')[1]] = err;
 				attachments[tag.split('@C')[1]] = fileName;
 			}
@@ -195,7 +205,7 @@ module.exports = (config) => {
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
 		test.tags.forEach(tag => {
 			if (tag.includes('@C')) {
-				passedTests.push({ id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
+				passedTests.push({ case_id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
 			}
 		});
 	});
@@ -206,7 +216,7 @@ module.exports = (config) => {
 
 		mergedTests.forEach(test => {
 			for (let [key, value] of Object.entries(test)) {
-				if (key === 'id') {
+				if (key === 'case_id') {
 					ids.push(value);
 				}
 			}
@@ -230,31 +240,38 @@ module.exports = (config) => {
 			}
 	
 			await _updateTestRun(runId, ids);
-	
+
 			passedTests.forEach(test => {
-				testCase.passed.elapsed = test.elapsed;
-				testrail.addResultForCase(runId, test.id, testCase.passed, (err) => {
-					if (err) output.error(`Cannot add result for test case: ${test.id}. Please check ${JSON.stringify(err)}`);
-				});
+				testCase.passed.comment = `Test case C${test.case_id} is PASSED.`
+				test = Object.assign(test, testCase.passed)
 			});
-	
+
 			failedTests.forEach(test => {
 				let errorString = '';
-				if (errors[test.id]['message']) {
-					errorString = errors[test.id]['message'].replace(/\u001b\[.*?m/g, '');
+				if (errors[test.case_id]['message']) {
+					errorString = errors[test.case_id]['message'].replace(/\u001b\[.*?m/g, '');
 				} else {
-					errorString = errors[test.id];
+					errorString = errors[test.case_id];
 				}
+				testCase.failed.comment = `Test case C${test.case_id} is FAILED due to **${errorString}**`;
+				test = Object.assign(test, testCase.failed)
+			});
+
+			allResults = passedTests.concat(failedTests);
+
+			testrail.addResultsForCases(runId, {results: allResults }).then(res => {
+				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
+
+				failedTests.forEach(test => {
+					testrail.getResultsForCase(runId, test.case_id).then(res => {
+						if (helper) {
+							testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
+						}
+					});
 	
-				testCase.failed.comment = `This test is failed due to **${errorString}**`;
-				testCase.failed.elapsed = test.elapsed;
-				testrail.addResultForCase(runId, test.id, testCase.failed).then(res => {
-					let resultId = res.id;
-					if (helper) {
-						testrail.addAttachmentToResult(resultId, attachments[test.id]);
-					}
 				});
 			});
+
 		} else {
 			output.log('There is no TC, hence no test run is created');
 		}
