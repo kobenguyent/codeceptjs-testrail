@@ -62,7 +62,7 @@ describe('Valid config file', () => {
 				expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
 				expect(stdout).to.include('The run with id: 1 is updated');
 				expect(stdout).to.include('The run 1 is updated with');
-				expect(stdout).to.include('"status_id": 5');
+				expect(stdout).to.include('"status_id":5');
 				done();
 			});
 		});
