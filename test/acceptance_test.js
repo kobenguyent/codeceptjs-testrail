@@ -51,7 +51,8 @@ describe('Valid config file', () => {
 		it('should update the results on passed case', (done) => {
 			exec(`${runner} --grep @pass -c ${mockTestrailConfig} --verbose`, (err, stdout, stderr) => {
 				expect(stdout).to.include('The run with id: 1 is updated');
-				expect(stdout).to.include('The case 1 on run 1 is updated');
+				expect(stdout).to.include('The run 1 is updated with');
+				expect(stdout).to.include('"status_id":1');
 				done();
 			});
 		});
@@ -60,8 +61,8 @@ describe('Valid config file', () => {
 			exec(`${runner} --grep @fail -c ${mockTestrailConfig} --verbose`, (err, stdout, stderr) => {
 				expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
 				expect(stdout).to.include('The run with id: 1 is updated');
-				expect(stdout).to.include('The case 2 on run 1 is updated');
-				expect(stdout).to.include('The reponse is {"status_id":5,"comment":"This test is failed due to **expected \'Elias\' to deeply equal \'abc\'**","elapsed":"1s","id":2}');
+				expect(stdout).to.include('The run 1 is updated with');
+				expect(stdout).to.include('"status_id": 5');
 				done();
 			});
 		});
