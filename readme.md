@@ -7,6 +7,10 @@ Testrail integration with CodeceptJS is never simple like this. The test run is 
 
 ![Attachemnt for failed case](http://g.recordit.co/ajaa2QRlnW.gif)
 
+Now there is new feature, add the configuration to test run of test plan
+![Attachemnt for failed case](http://g.recordit.co/uQLvQUq7cT.gif)
+
+
 ##### Requirement
 
 To use this custom plugin
@@ -49,6 +53,15 @@ plugins: {
     suiteId: 1,
     projectId: 1,
     runName: 'Custom run name',
+    plan: {
+      existingPlanId: 484,
+      name: 'Custom Plan name',
+      description: 'Something about your plan',
+    },
+    configuration: {
+      groupName: 'macos',
+      configName: 'leopard'
+    },
     enabled: true
   }
 }
@@ -59,3 +72,7 @@ Possible config options:
   - `suiteId`: when your project is not under the single-suite mode, `suiteId` is needed. When you don't provide the `suiteId`, the first `suiteId` will be used as default.
   - `projectId` (Required): The project Id which is from the Testrail. This should be provided to make this plugin works
   - `runName` (Optional): your desired test run name. If you done provide this test run name, default test run name is as `This is a new test run on ${dd/mm/yyy H:M}` which is current day.
+  - `plan - existingPlanId`: if you provide an existing plan ID, the new test run is added to that test plan.
+  - `plan - name`: your desired plan name
+  - `plan - description`: your desired description to your test plan
+  - `configuration`: provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run.
