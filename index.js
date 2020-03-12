@@ -51,6 +51,32 @@ class TestRail {
 		axios.defaults.headers.Authorization = `Basic ${basicAuth}`
 	}
 
+	async addPlan(projectId, data) {
+		try {
+			const res = await axios({
+				method: 'post',
+				url: 'add_plan/' + projectId,
+				data,
+			});
+			return res.data;
+		} catch (error) {
+			output.error(`Cannnot add new plan due to ${error}`);
+		}
+	}
+
+	async addPlanEntry(planId, data) {
+		try {
+			const res = await axios({
+				method: 'post',
+				url: 'add_plan_entry/' + planId,
+				data,
+			});
+			return res.data;
+		} catch (error) {
+			output.error(`Cannnot add new test run to existing test plan due to ${error}`);
+		}
+	}
+
 	async getSuites(projectId) {
 		try {
 			const res = await axios({
@@ -63,6 +89,21 @@ class TestRail {
 			return res.data;
 		} catch (error) {
 			output.error(`Cannnot get suites due to ${error}`);
+		}
+	}
+
+	async getConfigs(projectId) {
+		try {
+			const res = await axios({
+				method: 'get',
+				url: 'get_configs/' + projectId,
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+			return res.data;
+		} catch (error) {
+			output.error(`Cannnot get configs due to ${error}`);
 		}
 	}
 
@@ -102,10 +143,10 @@ class TestRail {
 			headers: {
 				'content-type': 'application/json'
 			}
-		}).then((res) => { 
+		}).then((res) => {
 			output.log(`The reponse is ${JSON.stringify(res.data)}`);
 			output.log(`The case ${caseId} on run ${runId} is updated`);
-			return res.data; 
+			return res.data;
 		}).catch(error => {
 			output.log(`Cannnot get results for case ${caseId} on run ${runId} due to ${error}`);
 		});
@@ -116,9 +157,9 @@ class TestRail {
 			method: 'post',
 			url: 'add_results_for_cases/' + runId,
 			data,
-		}).then((res) => { 
+		}).then((res) => {
 			output.log(`The reponse is ${JSON.stringify(res.data)}`);
-			return res.data; 
+			return res.data;
 		}).catch(error => {
 			output.log(`Cannnot add result for case due to ${error}`);
 		});
@@ -173,6 +214,15 @@ module.exports = (config) => {
 		}
 	}
 
+	async function _addTestPlan(projectId, planName, data) {
+		try {
+			const planData = Object.assign({ name: planName }, data);
+			return testrail.addPlan(projectId, planData);
+		} catch (error) {
+			output.error(`Cannot create new test plan due to ${JSON.stringify(error)}`);
+		}
+	}
+
 	event.dispatcher.on(event.test.started, async (test) => {
 		test.startTime = Date.now();
 	});
@@ -213,6 +263,7 @@ module.exports = (config) => {
 	event.dispatcher.on(event.all.result, async () => {
 		const mergedTests = failedTests.concat(passedTests);
 		let ids = [];
+		let config_ids = [];
 
 		mergedTests.forEach(test => {
 			for (let [key, value] of Object.entries(test)) {
@@ -223,23 +274,72 @@ module.exports = (config) => {
 		});
 
 		if (ids.length > 0) {
+			let suiteId;
 			if (config.suiteId === undefined || config.suiteId === null) {
 				let res = await testrail.getSuites(config.projectId);
-				const suiteId = res[0].id;
-				res = await _addTestRun(config.projectId, suiteId, runName);
-				runId = res.id;
-	
+				suiteId = res[0].id;
 			} else {
 				suiteId = config.suiteId;
+			}
+
+			if (config.configuration) {
+				const res = await testrail.getConfigs(config.projectId);
+				for (let i = 0; i < res.length; i++) {
+					if (res[i].name === config.configuration.groupName) {
+						for (let j = 0; j < res[i].configs.length; j++) {
+							if (res[i].configs[j].name === config.configuration.configName) {
+								config_ids.push(res[i].configs[j].id);
+							}
+						}
+					}
+				}
+			}
+
+			if (config.plan) {
+				if (config.plan.existingPlanId) {
+					const data = {
+						suite_id: suiteId,
+						name: runName,
+						include_all: true,
+						config_ids: config_ids,
+						runs: [{
+							include_all: false,
+							case_ids: ids,
+							config_ids: config_ids
+						}]
+					}
+
+					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
+					runId = res.runs[0].id;
+				} else {
+					const data = {
+						description: config.plan.description || '',
+						entries: [{
+							suite_id: suiteId,
+							name: runName,
+							include_all: true,
+							config_ids: config_ids,
+							runs: [{
+								include_all: false,
+								case_ids: ids,
+								config_ids: config_ids
+							}]
+						}]
+					};
+
+					const res = await _addTestPlan(config.projectId, config.plan.name, data);
+					runId = res.entries[0].runs[0].id;
+				}
+
+			} else {
 				try {
 					const res = await _addTestRun(config.projectId, suiteId, runName);
 					runId = res.id;
+					await _updateTestRun(runId, ids);
 				} catch (error) {
 					output.error(error);
 				}
 			}
-	
-			await _updateTestRun(runId, ids);
 
 			passedTests.forEach(test => {
 				testCase.passed.comment = `Test case C${test.case_id} is PASSED.`
@@ -259,7 +359,7 @@ module.exports = (config) => {
 
 			allResults = passedTests.concat(failedTests);
 
-			testrail.addResultsForCases(runId, {results: allResults }).then(res => {
+			testrail.addResultsForCases(runId, { results: allResults }).then(res => {
 				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
 
 				failedTests.forEach(test => {
@@ -268,7 +368,7 @@ module.exports = (config) => {
 							testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
 						}
 					});
-	
+
 				});
 			});
 
