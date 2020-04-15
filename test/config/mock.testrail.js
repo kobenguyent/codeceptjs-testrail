@@ -19,7 +19,8 @@ exports.config = {
 			suiteId: 1,
 			projectId: 1,
 			runName: 'Custom run name',
-			enabled: true
+			enabled: true,
+			debugLog: true,
 		  }
 	}
 };

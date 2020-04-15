@@ -3,10 +3,9 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const Container = require('codeceptjs').container;
-const output = require('codeceptjs').output;
 const path = require('path');
-output.level(3);
 const helpers = Container.helpers();
+const output = require('./lib/output');
 let helper;
 
 const supportedHelpers = [
@@ -48,7 +47,7 @@ class TestRail {
 		const basicAuth = b.toString('base64');
 
 		axios.defaults.baseURL = this.host + this.uri;
-		axios.defaults.headers.Authorization = `Basic ${basicAuth}`
+		axios.defaults.headers.Authorization = `Basic ${basicAuth}`;
 	}
 
 	async addPlan(projectId, data) {
@@ -133,7 +132,6 @@ class TestRail {
 		} catch (error) {
 			output.error(`Cannnot update run due to ${error}`);
 		}
-
 	}
 
 	async getResultsForCase(runId, caseId) {
@@ -148,7 +146,7 @@ class TestRail {
 			output.log(`The case ${caseId} on run ${runId} is updated`);
 			return res.data;
 		}).catch(error => {
-			output.log(`Cannnot get results for case ${caseId} on run ${runId} due to ${error}`);
+			output.error(`Cannnot get results for case ${caseId} on run ${runId} due to ${error}`);
 		});
 	}
 
@@ -159,9 +157,10 @@ class TestRail {
 			data,
 		}).then((res) => {
 			output.log(`The response is ${JSON.stringify(res.data)}`);
+
 			return res.data;
 		}).catch(error => {
-			output.log(`Cannnot add result for case due to ${error}`);
+			output.error(`Cannnot add result for case due to ${error}`);
 		});
 	}
 
@@ -182,13 +181,13 @@ class TestRail {
 
 module.exports = (config) => {
 	config = Object.assign(defaultConfig, config);
+	output.showDebugLog(config.debugLog);
 
 	if (config.host === '' || config.user === '' || config.password === '') throw new Error('Please provide proper Testrail host or credentials');
 	if (!config.projectId) throw new Error('Please provide project id in config file');
 
 	const testrail = new TestRail(config);
-
-	let suiteId;
+	
 	let runName;
 	let runId;
 	let failedTests = [];
@@ -239,7 +238,7 @@ module.exports = (config) => {
 					helper.saveScreenshot(fileName);
 				}
 			} catch (error) {
-				output.error(`Cannot save screenshot due to ${error}`);
+				output.log(`Cannot save screenshot due to ${error}`);
 			}
 
 			if (tag.includes('@C')) {
@@ -307,7 +306,7 @@ module.exports = (config) => {
 							case_ids: ids,
 							config_ids: config_ids
 						}]
-					}
+					};
 
 					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
 					runId = res.runs[0].id;
@@ -342,8 +341,8 @@ module.exports = (config) => {
 			}
 
 			passedTests.forEach(test => {
-				testCase.passed.comment = `Test case C${test.case_id} is PASSED.`
-				test = Object.assign(test, testCase.passed)
+				testCase.passed.comment = `Test case C${test.case_id} is PASSED.`;
+				test = Object.assign(test, testCase.passed);
 			});
 
 			failedTests.forEach(test => {
@@ -354,10 +353,10 @@ module.exports = (config) => {
 					errorString = errors[test.case_id];
 				}
 				testCase.failed.comment = `Test case C${test.case_id} is FAILED due to **${errorString}**`;
-				test = Object.assign(test, testCase.failed)
+				test = Object.assign(test, testCase.failed);
 			});
 
-			allResults = passedTests.concat(failedTests);
+			const allResults = passedTests.concat(failedTests);
 
 			testrail.addResultsForCases(runId, { results: allResults }).then(res => {
 				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);

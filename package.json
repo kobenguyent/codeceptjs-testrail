@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-testrail",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "CodeceptJS plugin for TestRail",
   "main": "index.js",
   "repository": {
@@ -30,12 +30,13 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "chalk": "^4.0.0",
     "codeceptjs": "^2.5.0",
-    "expect": "^25.1.0",
-    "faker": "^4.1.0",
-    "mocha": "^7.1.0",
     "eslint": "^6.7.1",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.12.0"
+    "eslint-plugin-import": "^2.12.0",
+    "expect": "^25.1.0",
+    "faker": "^4.1.0",
+    "mocha": "^7.1.0"
   }
 }
