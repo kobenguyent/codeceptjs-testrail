@@ -144,7 +144,7 @@ class TestRail {
 				'content-type': 'application/json'
 			}
 		}).then((res) => {
-			output.log(`The reponse is ${JSON.stringify(res.data)}`);
+			output.log(`The response is ${JSON.stringify(res.data)}`);
 			output.log(`The case ${caseId} on run ${runId} is updated`);
 			return res.data;
 		}).catch(error => {
@@ -158,7 +158,7 @@ class TestRail {
 			url: 'add_results_for_cases/' + runId,
 			data,
 		}).then((res) => {
-			output.log(`The reponse is ${JSON.stringify(res.data)}`);
+			output.log(`The response is ${JSON.stringify(res.data)}`);
 			return res.data;
 		}).catch(error => {
 			output.log(`Cannnot add result for case due to ${error}`);
