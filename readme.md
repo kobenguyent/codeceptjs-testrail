@@ -68,7 +68,7 @@ plugins: {
 ...
 ```
 
-Possible config options:
+**Possible config options:**
 
 - `suiteId`: when your project is not under the single-suite mode, `suiteId` is needed. When you don't provide the `suiteId`, the first `suiteId` will be used as default.
 - `projectId` (Required): The project Id which is from the Testrail. This should be provided to make this plugin works
