@@ -214,12 +214,8 @@ module.exports = (config) => {
 	}
 
 	async function _addTestPlan(projectId, planName, data) {
-		try {
-			const planData = Object.assign({ name: planName }, data);
-			return testrail.addPlan(projectId, planData);
-		} catch (error) {
-			output.error(`Cannot create new test plan due to ${JSON.stringify(error)}`);
-		}
+		const planData = Object.assign({ name: planName }, data);
+		return testrail.addPlan(projectId, planData);
 	}
 
 	event.dispatcher.on(event.test.started, async (test) => {
