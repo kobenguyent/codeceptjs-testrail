@@ -331,13 +331,9 @@ module.exports = (config) => {
 				}
 
 			} else {
-				try {
-					const res = await _addTestRun(config.projectId, suiteId, runName);
-					runId = res.id;
-					await _updateTestRun(runId, ids);
-				} catch (error) {
-					output.error(error);
-				}
+				const res = await _addTestRun(config.projectId, suiteId, runName);
+				runId = res.id;
+				await _updateTestRun(runId, ids);
 			}
 
 			passedTests.forEach(test => {
