@@ -53,6 +53,7 @@ plugins: {
     suiteId: 1,
     projectId: 1,
     runName: 'Custom run name',
+    runId: 123,
     plan: {
       existingPlanId: 484,
       name: 'Custom Plan name',
@@ -73,6 +74,7 @@ plugins: {
 - `suiteId`: when your project is not under the single-suite mode, `suiteId` is needed. When you don't provide the `suiteId`, the first `suiteId` will be used as default.
 - `projectId` (Required): The project Id which is from the Testrail. This should be provided to make this plugin works
 - `runName` (Optional): your desired test run name. If you done provide this test run name, default test run name is as `This is a new test run on ${dd/mm/yyy H:M}` which is current day.
+- `runId` (Optional): provide the existing run Id when you want to update the existing one instead of creating new testrun.
 - `plan - existingPlanId`: if you provide an existing plan ID, the new test run is added to that test plan. Otherwise, new test plan is created and new test run is added to that test plan.
 - `plan - name`: your desired plan name.
 - `plan - description`: your desired description to your test plan.
