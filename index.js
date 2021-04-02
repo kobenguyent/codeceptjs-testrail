@@ -42,17 +42,18 @@ class TestRail {
 		this.user = defaultConfig.user;
 		this.password = defaultConfig.password;
 		this.uri = '/index.php?/api/v2/';
+		this.axios = axios.create()
 
 		const b = new Buffer(`${this.user}:${this.password}`);
 		const basicAuth = b.toString('base64');
 
-		axios.defaults.baseURL = this.host + this.uri;
-		axios.defaults.headers.Authorization = `Basic ${basicAuth}`;
+		this.axios.defaults.baseURL = this.host + this.uri;
+		this.axios.defaults.headers.Authorization = `Basic ${basicAuth}`;
 	}
 
 	async addPlan(projectId, data) {
 		try {
-			const res = await axios({
+			const res = await this.axios({
 				method: 'post',
 				url: 'add_plan/' + projectId,
 				data,
@@ -65,7 +66,7 @@ class TestRail {
 
 	async addPlanEntry(planId, data) {
 		try {
-			const res = await axios({
+			const res = await this.axios({
 				method: 'post',
 				url: 'add_plan_entry/' + planId,
 				data,
@@ -78,7 +79,7 @@ class TestRail {
 
 	async getSuites(projectId) {
 		try {
-			const res = await axios({
+			const res = await this.axios({
 				method: 'get',
 				url: 'get_suites/' + projectId,
 				headers: {
@@ -93,7 +94,7 @@ class TestRail {
 
 	async getConfigs(projectId) {
 		try {
-			const res = await axios({
+			const res = await this.axios({
 				method: 'get',
 				url: 'get_configs/' + projectId,
 				headers: {
@@ -108,7 +109,7 @@ class TestRail {
 
 	async addRun(projectId, data) {
 		try {
-			const res = await axios({
+			const res = await this.axios({
 				method: 'post',
 				url: 'add_run/' + projectId,
 				data,
@@ -122,7 +123,7 @@ class TestRail {
 
 	async updateRun(runId, data) {
 		try {
-			const res = await axios({
+			const res = await this.axios({
 				method: 'post',
 				url: 'update_run/' + runId,
 				data,
@@ -135,7 +136,7 @@ class TestRail {
 	}
 
 	async getResultsForCase(runId, caseId) {
-		return axios({
+		return this.axios({
 			method: 'get',
 			url: 'get_results_for_case/' + runId + '/' + caseId,
 			headers: {
@@ -151,7 +152,7 @@ class TestRail {
 	}
 
 	async addResultsForCases(runId, data) {
-		return axios({
+		return this.axios({
 			method: 'post',
 			url: 'add_results_for_cases/' + runId,
 			data,
@@ -168,7 +169,7 @@ class TestRail {
 		var form = new FormData();
 		form.append('attachment', fs.createReadStream(path.join(global.output_dir, imageFile.toString())));
 
-		axios({
+		this.axios({
 			method: 'post',
 			data: form,
 			url: 'add_attachment_to_result/' + resultId,
