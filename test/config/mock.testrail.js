@@ -13,7 +13,7 @@ exports.config = {
 	plugins: {
 		testrail: {
 			require: '../../index.js',
-			host: 'http://demo4928585.mockable.io',
+			host: 'http://localhost:3000',
 			user: 'test',
 			password: 'pass',
 			suiteId: 1,
@@ -21,6 +21,6 @@ exports.config = {
 			runName: 'Custom run name',
 			enabled: true,
 			debugLog: true,
-		  }
+		}
 	}
 };

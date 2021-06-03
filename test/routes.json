@@ -1,0 +1,10 @@
+{
+  "/index.php?/api/v2/get_configs/1": "/get_configs/",
+  "/index.php?/api/v2/add_run/1": "/add_run/",
+  "/index.php?/api/v2/update_run/1": "/update_run/",
+  "/index.php?/api/v2/update_run/2": "/update_run/",
+  "/index.php?/api/v2/add_results_for_cases/1": "/add_results_for_cases/",
+  "/index.php?/api/v2/add_results_for_cases/2": "/add_results_for_cases/",
+  "/index.php?/api/v2/get_results_for_case/1/2": "/get_results_for_case/",
+  "/index.php?/api/v2/get_results_for_case/2/2": "/get_results_for_case/"
+}
