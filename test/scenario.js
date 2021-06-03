@@ -1,10 +1,11 @@
 const { expect } = require('chai');
 const faker = require('faker');
 let userData;
+const {I} = inject();
 
 Feature('PUT tests');
 
-Before((I) => {
+Before(() => {
 	userData = {
 		name: faker.name.firstName(),
 		job: 'leader'
@@ -13,13 +14,13 @@ Before((I) => {
 	I.sendPostRequest('/api/users', userData);
 });
 
-Scenario('Verify creating new user @C1', async (I) => {
+Scenario('Verify creating new user @C1', async () => {
 	userData.name = faker.name.firstName();
 	const res = await I.sendPutRequest('/api/users', userData);
 	expect(res.data.name).to.eql(userData.name);
 }).tag('@pass');
 
-Scenario('Verify creating new user @C2', async (I) => {
+Scenario('Verify creating new user @C2', async () => {
 	userData.name = faker.name.firstName();
 	const res = await I.sendPutRequest('/api/users', userData);
 	expect(res.data.name).to.eql('abc');
