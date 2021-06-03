@@ -42,131 +42,92 @@ class TestRail {
 		this.user = defaultConfig.user;
 		this.password = defaultConfig.password;
 		this.uri = '/index.php?/api/v2/';
-		this.axios = axios.create()
 
 		const b = new Buffer(`${this.user}:${this.password}`);
 		const basicAuth = b.toString('base64');
 
-		this.axios.defaults.baseURL = this.host + this.uri;
-		this.axios.defaults.headers.Authorization = `Basic ${basicAuth}`;
+		this.axios = axios.create({
+			baseURL: this.host + this.uri,
+			headers: {Authorization: `Basic ${basicAuth}`, 'content-type': 'application/json'}
+		});
 	}
 
 	async addPlan(projectId, data) {
 		try {
-			const res = await this.axios({
-				method: 'post',
-				url: 'add_plan/' + projectId,
-				data,
-			});
+			const res = await this.axios.post('add_plan/' + projectId, data);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot add new plan due to ${error}`);
+			output.error(`Cannot add new plan due to ${error}`);
 		}
 	}
 
 	async addPlanEntry(planId, data) {
 		try {
-			const res = await this.axios({
-				method: 'post',
-				url: 'add_plan_entry/' + planId,
-				data,
-			});
+			const res = await this.axios.post('add_plan_entry/' + planId, data);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot add new test run to existing test plan due to ${error}`);
+			output.error(`Cannot add new test run to existing test plan due to ${error}`);
 		}
 	}
 
 	async getSuites(projectId) {
 		try {
-			const res = await this.axios({
-				method: 'get',
-				url: 'get_suites/' + projectId,
-				headers: {
-					'content-type': 'application/json'
-				}
-			});
+			const res = await this.axios.get('get_suites/' + projectId);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot get suites due to ${error}`);
+			output.error(`Cannot get suites due to ${error}`);
 		}
 	}
 
 	async getConfigs(projectId) {
 		try {
-			const res = await this.axios({
-				method: 'get',
-				url: 'get_configs/' + projectId,
-				headers: {
-					'content-type': 'application/json'
-				}
-			});
+			const res = await this.axios.get('get_configs/' + projectId);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot get configs due to ${error}`);
+			output.error(`Cannot get configs due to ${error}`);
 		}
 	}
 
 	async addRun(projectId, data) {
 		try {
-			const res = await this.axios({
-				method: 'post',
-				url: 'add_run/' + projectId,
-				data,
-			});
-
+			const res = await this.axios.post('add_run/' + projectId, data);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot add new run due to ${error}`);
+			output.error(`Cannot add new run due to ${error}`);
 		}
 	}
 
 	async updateRun(runId, data) {
 		try {
-			const res = await this.axios({
-				method: 'post',
-				url: 'update_run/' + runId,
-				data,
-			});
+			const res = await this.axios.post('update_run/' + runId, data);
 			output.log(`The run with id: ${runId} is updated`);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannnot update run due to ${error}`);
+			output.error(`Cannot update run due to ${error}`);
 		}
 	}
 
 	async getResultsForCase(runId, caseId) {
-		return this.axios({
-			method: 'get',
-			url: 'get_results_for_case/' + runId + '/' + caseId,
-			headers: {
-				'content-type': 'application/json'
-			}
-		}).then((res) => {
+		return this.axios.get(`get_results_for_case/${runId}/${caseId}`).then((res) => {
 			output.log(`The response is ${JSON.stringify(res.data)}`);
 			output.log(`The case ${caseId} on run ${runId} is updated`);
 			return res.data;
 		}).catch(error => {
-			output.error(`Cannnot get results for case ${caseId} on run ${runId} due to ${error}`);
+			output.error(`Cannot get results for case ${caseId} on run ${runId} due to ${error}`);
 		});
 	}
 
 	async addResultsForCases(runId, data) {
-		return this.axios({
-			method: 'post',
-			url: 'add_results_for_cases/' + runId,
-			data,
-		}).then((res) => {
+		return this.axios.post('add_results_for_cases/' + runId, data).then((res) => {
 			output.log(`The response is ${JSON.stringify(res.data)}`);
-
 			return res.data;
 		}).catch(error => {
-			output.error(`Cannnot add result for case due to ${error}`);
+			output.error(`Cannot add result for case due to ${error}`);
 		});
 	}
 
 	async addAttachmentToResult(resultId, imageFile) {
-		var form = new FormData();
+		let form = new FormData();
 		form.append('attachment', fs.createReadStream(path.join(global.output_dir, imageFile.toString())));
 
 		this.axios({
@@ -188,13 +149,15 @@ module.exports = (config) => {
 	if (!config.projectId) throw new Error('Please provide project id in config file');
 
 	const testrail = new TestRail(config);
-	
+
 	let runName;
 	let runId;
 	let failedTests = [];
 	let passedTests = [];
 	let errors = {};
 	let attachments = {};
+	let prefixTag = '@C';
+	let defaultElapsedTime = '1s';
 
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
 
@@ -202,7 +165,7 @@ module.exports = (config) => {
 		try {
 			await testrail.updateRun(runId, { case_ids: ids });
 		} catch (error) {
-			output.error(`Cannnot update run due to ${error}`);
+			output.error(`Cannot update run due to ${error}`);
 		}
 	}
 
@@ -210,7 +173,7 @@ module.exports = (config) => {
 		try {
 			return testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false });
 		} catch (error) {
-			output.error(`Cannot create new testrun due to ${JSON.stringify(error)}`);
+			output.error(`Cannot create new test run due to ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -238,10 +201,10 @@ module.exports = (config) => {
 				output.log(`Cannot save screenshot due to ${error}`);
 			}
 
-			if (tag.includes('@C')) {
-				failedTests.push({ case_id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
-				errors[tag.split('@C')[1]] = err;
-				attachments[tag.split('@C')[1]] = fileName;
+			if (tag.includes(prefixTag)) {
+				failedTests.push({ case_id: tag.split(prefixTag)[1], elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
+				errors[tag.split(prefixTag)[1]] = err;
+				attachments[tag.split(prefixTag)[1]] = fileName;
 			}
 		});
 	});
@@ -250,8 +213,8 @@ module.exports = (config) => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
 		test.tags.forEach(tag => {
-			if (tag.includes('@C')) {
-				passedTests.push({ case_id: tag.split('@C')[1], elapsed: test.elapsed === 0 ? '1s' : `${test.elapsed}s` });
+			if (tag.includes(prefixTag)) {
+				passedTests.push({ case_id: tag.split(prefixTag)[1], elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
 			}
 		});
 	});
