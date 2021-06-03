@@ -30,11 +30,11 @@
     "acceptance_test": "mocha test/acceptance_test.js --timeout 6000"
   },
   "devDependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "axios-mock-adapter": "^1.19.0",
     "chai": "^4.2.0",
     "chalk": "^4.0.0",
-    "codeceptjs": "^2.6.5",
+    "codeceptjs": "^3.0.7",
     "eslint": "^6.7.1",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.12.0",
