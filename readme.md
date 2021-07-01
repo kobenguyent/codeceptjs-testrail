@@ -31,9 +31,30 @@ An example:
 
 ```js
 ...
-  Scenario('Search function is displayed @C12345', (I, homePage) => {
+  Scenario('Search function is displayed @C12345', ({I, homePage}) => {
     I.seeElement(homePage.searchTextbox);
     I.seeElement(homePage.searchButton);
+  });
+...
+```
+
+**Data driven tests**
+
+If you want to have different Data-driven test cases with different IDs in Testrail for each iteration of the test you will need to populate the Data object with your a tag. This works because CodeceptJS extracts tags from test names, and data for Data-driven tests is populated in the test name.
+
+An example:
+
+```js
+...
+  let accounts = new DataTable(['testRailTag', 'user', 'password']);
+  accounts.add(['@C12345', 'davert', '123456']); // add a tag for each user along with their test data
+  accounts.add(['@C45678', 'admin', '123456']);
+  
+  Data(accounts).Scenario('Test Login', ({ I, current }) => {
+    I.fillField('Username', current.login); // current is reserved!
+    I.fillField('Password', current.password);
+    I.click('Sign In');
+    I.see('Welcome '+ current.login);
   });
 ...
 ```
