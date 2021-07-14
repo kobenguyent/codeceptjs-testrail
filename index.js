@@ -269,7 +269,7 @@ module.exports = (config) => {
 					};
 
 					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
-					runId = res.runs[0].id;
+					runId = config.runId ? config.runId : res.runs[0].id;
 				} else {
 					const data = {
 						description: config.plan.description || '',
