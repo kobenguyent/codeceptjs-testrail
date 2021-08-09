@@ -59,6 +59,17 @@ An example:
 ...
 ```
 
+A Gherkin example:
+
+```gherkin
+  @smoke
+  @12345
+  Scenario: Search function is displayed
+    Given I am on the home page
+    Then I see search textbox
+    And I see search button
+```
+
 ##### Configuration
 
 Add this plugin to config file:
