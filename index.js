@@ -183,6 +183,14 @@ module.exports = (config) => {
 	}
 
 	event.dispatcher.on(event.test.started, async (test) => {
+		if (test.body) {
+			if (test.body.includes('addExampleInTable')) {
+				const testRailTag = /"testRailTag":"(@C\d+)"/.exec(test.title);
+				if (testRailTag) {
+					test.tags.push(testRailTag[1]);
+				}
+			}
+		}
 		test.startTime = Date.now();
 	});
 
