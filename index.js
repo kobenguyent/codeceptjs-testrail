@@ -186,6 +186,8 @@ module.exports = (config) => {
 		test.startTime = Date.now();
 	});
 
+	const failedTestCaseIds = new Set();
+
 	event.dispatcher.on(event.test.failed, async (test, err) => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
@@ -202,7 +204,12 @@ module.exports = (config) => {
 			}
 
 			if (tag.includes(prefixTag)) {
-				failedTests.push({ case_id: tag.split(prefixTag)[1], elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
+				const caseId = tag.split(prefixTag)[1];
+				if (!failedTestCaseIds.has(caseId)) {
+					// else it also failed on retry so we shouldnt add in a duplicate
+					failedTestCaseIds.add(caseId);
+					failedTests.push({ case_id: caseId, elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
+				}
 				errors[tag.split(prefixTag)[1]] = err;
 				attachments[tag.split(prefixTag)[1]] = fileName;
 			}
@@ -214,7 +221,12 @@ module.exports = (config) => {
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
 		test.tags.forEach(tag => {
 			if (tag.includes(prefixTag)) {
-				passedTests.push({ case_id: tag.split(prefixTag)[1], elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
+				const caseId = tag.split(prefixTag)[1];
+				// remove duplicates caused by retries
+				if (failedTestCaseIds.has(caseId)) {
+					failedTests = failedTests.filter(({case_id}) => case_id !== caseId)
+				}
+				passedTests.push({ case_id: caseId, elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
 			}
 		});
 	});
