@@ -197,7 +197,7 @@ module.exports = (config) => {
 			try {
 				output.log('Saving the screenshot...');
 				if (helper) {
-					helper.saveScreenshot(fileName);
+					await helper.saveScreenshot(fileName);
 				}
 			} catch (error) {
 				output.log(`Cannot save screenshot due to ${error}`);
