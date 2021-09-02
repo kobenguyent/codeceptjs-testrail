@@ -69,6 +69,19 @@ A Gherkin example:
     Then I see search textbox
     And I see search button
 ```
+**Note:**
+TestRail tag in **Examples** from **Scenario Outline** available from version `1.7.4` and above
+```gherkin
+  @someTag
+  Scenario Outline: Fill some field
+    When I fill some field by text <text>
+    Then I see text <text>
+    
+    Examples:
+      | testRailTag | text      |
+      | @C1234      | someText1 |
+      | @C1235      | someText2 |
+```
 
 ##### Configuration
 
