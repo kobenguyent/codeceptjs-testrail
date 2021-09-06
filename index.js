@@ -122,7 +122,7 @@ class TestRail {
 			output.log(`The response is ${JSON.stringify(res.data)}`);
 			return res.data;
 		}).catch(error => {
-			output.error(`Cannot add result for case due to ${error}`);
+			output.error(`Cannot add result for case due to ${error.response.data.error}`);
 		});
 	}
 
