@@ -103,7 +103,8 @@ class TestRail {
 			output.log(`The run with id: ${runId} is updated`);
 			return res.data;
 		} catch (error) {
-			output.error(`Cannot update run due to ${error}`);
+			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
+			output.error(`Cannot update run due to ${parsedError}`);
 		}
 	}
 
