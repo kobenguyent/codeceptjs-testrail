@@ -105,6 +105,7 @@ class TestRail {
 		} catch (error) {
 			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
 			output.error(`Cannot update run due to ${parsedError}`);
+			output.error(`Request data was: ${JSON.stringify(data)}`);
 		}
 	}
 
@@ -125,6 +126,7 @@ class TestRail {
 		}).catch(error => {
 			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
 			output.error(`Cannot add result for case due to ${parsedError}`);
+			output.error(`Request data was: ${JSON.stringify(data)}`);
 		});
 	}
 
