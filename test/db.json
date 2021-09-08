@@ -3,6 +3,6 @@
   "add_run": [],
   "update_run": [],
   "add_results_for_cases": [],
-  "get_cases": [{"id": "1"}],
+  "get_cases": [{"id": "1"}, {"id": "2"}],
   "get_results_for_case": []
 }
