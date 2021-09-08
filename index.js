@@ -360,10 +360,12 @@ module.exports = (config) => {
 			// Before POST-ing the results, filter the array for any non-existing tags in TR
 			let validResults = [];
 			testrail.getCases(config.projectId, config.suiteId).then(res => {
-				validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id))
-				const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
-				if (missingLabels.length) {
-					output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
+				if (res.length) {
+					validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id))
+					const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
+					if (missingLabels.length) {
+						output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
+					}
 				}
 			}).then(() => {
 				if (!!validResults.length) {

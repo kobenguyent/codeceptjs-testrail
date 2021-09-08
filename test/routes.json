@@ -5,6 +5,7 @@
   "/index.php?/api/v2/update_run/2": "/update_run/",
   "/index.php?/api/v2/add_results_for_cases/1": "/add_results_for_cases/",
   "/index.php?/api/v2/add_results_for_cases/2": "/add_results_for_cases/",
+  "/index.php?/api/v2/get_cases/1&suite_id=1": "/get_cases/",
   "/index.php?/api/v2/get_results_for_case/1/2": "/get_results_for_case/",
   "/index.php?/api/v2/get_results_for_case/2/2": "/get_results_for_case/"
 }
