@@ -358,30 +358,28 @@ module.exports = (config) => {
 			const allResults = passedTests.concat(failedTests);
 
 			// Before POST-ing the results, filter the array for any non-existing tags in TR
-			testrail.getCases(projectId, suiteId).then(res => {
-				const tags = JSON.parse(res);
-				const validResults = allResults.filter(result => tags.find(tag => tag.id === result.case_id))
-			})
-
-			const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id === result.case_id));
-			if (missingLabels.length) {
-				output.error(`Some labels are missing from the run and the results were not send through: ${missingLabels}`);
-			}
-
-
-			testrail.addResultsForCases(runId, { results: validResults }).then(res => {
-				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
-
-				failedTests.forEach(test => {
-					testrail.getResultsForCase(runId, test.case_id).then(res => {
-						if (helper) {
-							testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
-						}
+			let validResults = [];
+			testrail.getCases(config.projectId, config.suiteId).then(res => {
+				validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id))
+				const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
+				if (missingLabels.length) {
+					output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
+				}
+			}).then(() => {
+				if (!!validResults.length) {
+					testrail.addResultsForCases(runId, { results: validResults }).then(res => {
+						output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
+		
+						failedTests.forEach(test => {
+							testrail.getResultsForCase(runId, test.case_id).then(res => {
+								if (helper) {
+									testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
+								}
+							});		
+						});
 					});
-
-				});
-			});
-
+				}
+			})	
 		} else {
 			output.log('There is no TC, hence no test run is created');
 		}
