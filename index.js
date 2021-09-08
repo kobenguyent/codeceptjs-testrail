@@ -52,6 +52,16 @@ class TestRail {
 		});
 	}
 
+	async getCases(projectId, suiteId) {
+		try {
+			const res = await this.axios.get(`get_cases/${projectId}&suite_id=${suiteId}`);
+			return res.data;
+		} catch (error) {
+			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
+			output.error(`Cannot get cases for projectId:${projectId} & suiteId:${suiteId}, due to ${parsedError}`);
+		}
+	}
+
 	async addPlan(projectId, data) {
 		try {
 			const res = await this.axios.post('add_plan/' + projectId, data);
@@ -347,7 +357,19 @@ module.exports = (config) => {
 
 			const allResults = passedTests.concat(failedTests);
 
-			testrail.addResultsForCases(runId, { results: allResults }).then(res => {
+			// Before POST-ing the results, filter the array for any non-existing tags in TR
+			testrail.getCases(projectId, suiteId).then(res => {
+				const tags = JSON.parse(res);
+				const validResults = allResults.filter(result => tags.find(tag => tag.id === result.case_id))
+			})
+
+			const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id === result.case_id));
+			if (missingLabels.length) {
+				output.error(`Some labels are missing from the run and the results were not send through: ${missingLabels}`);
+			}
+
+
+			testrail.addResultsForCases(runId, { results: validResults }).then(res => {
 				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
 
 				failedTests.forEach(test => {
