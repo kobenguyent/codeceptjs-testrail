@@ -52,6 +52,16 @@ class TestRail {
 		});
 	}
 
+	async getCases(projectId, suiteId) {
+		try {
+			const res = await this.axios.get(`get_cases/${projectId}&suite_id=${suiteId}`);
+			return res.data;
+		} catch (error) {
+			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
+			output.error(`Cannot get cases for projectId:${projectId} & suiteId:${suiteId}, due to ${parsedError}`);
+		}
+	}
+
 	async addPlan(projectId, data) {
 		try {
 			const res = await this.axios.post('add_plan/' + projectId, data);
@@ -347,24 +357,33 @@ module.exports = (config) => {
 
 			const allResults = passedTests.concat(failedTests);
 
-			testrail.addResultsForCases(runId, { results: allResults }).then(res => {
-				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
+			// Before POST-ing the results, filter the array for any non-existing tags in TR
+			let validResults = [];
+			testrail.getCases(config.projectId, config.suiteId).then(res => {
+				validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id))
+				const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
+				if (missingLabels.length) {
+					output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
+				}
+			}).then(() => {
+				if (!!validResults.length) {
+					testrail.addResultsForCases(runId, { results: validResults }).then(res => {
+						output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
 
-				failedTests.forEach(test => {
-					testrail.getResultsForCase(runId, test.case_id).then(res => {
-						if (helper) {
-							testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
-						}
+						failedTests.forEach(test => {
+							testrail.getResultsForCase(runId, test.case_id).then(res => {
+								if (helper) {
+									testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
+								}
+							});		
+						});
 					});
-
-				});
-			});
-
+				}
+			})	
 		} else {
 			output.log('There is no TC, hence no test run is created');
 		}
 	});
-
 	return this;
 };
 
