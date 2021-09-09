@@ -1,29 +1,16 @@
-const event = require('codeceptjs').event;
-const axios = require('axios');
-const FormData = require('form-data');
-const fs = require('fs');
+const { event } = require('codeceptjs');
 const Container = require('codeceptjs').container;
-const path = require('path');
 const helpers = Container.helpers();
 const output = require('./lib/output');
-let helper;
-
+const TestRail = require('./lib/testrail');
 const supportedHelpers = [
 	'WebDriver',
-	'Protractor',
 	'Appium',
 	'Nightmare',
 	'Puppeteer',
 	'Playwright',
 	'TestCafe'
 ];
-
-for (const helperName of supportedHelpers) {
-	if (Object.keys(helpers).indexOf(helperName) > -1) {
-		helper = helpers[helperName];
-	}
-}
-
 const defaultConfig = {
 	host: '',
 	user: '',
@@ -36,122 +23,11 @@ const testCase = {
 	failed: { status_id: 5 },
 };
 
-class TestRail {
-	constructor(defaultConfig) {
-		this.host = defaultConfig.host;
-		this.user = defaultConfig.user;
-		this.password = defaultConfig.password;
-		this.uri = '/index.php?/api/v2/';
+let helper;
 
-		const b = new Buffer(`${this.user}:${this.password}`);
-		const basicAuth = b.toString('base64');
-
-		this.axios = axios.create({
-			baseURL: this.host + this.uri,
-			headers: {Authorization: `Basic ${basicAuth}`, 'content-type': 'application/json'}
-		});
-	}
-
-	async getCases(projectId, suiteId) {
-		try {
-			const res = await this.axios.get(`get_cases/${projectId}&suite_id=${suiteId}`);
-			return res.data;
-		} catch (error) {
-			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
-			output.error(`Cannot get cases for projectId:${projectId} & suiteId:${suiteId}, due to ${parsedError}`);
-		}
-	}
-
-	async addPlan(projectId, data) {
-		try {
-			const res = await this.axios.post('add_plan/' + projectId, data);
-			return res.data;
-		} catch (error) {
-			output.error(`Cannot add new plan due to ${error}`);
-		}
-	}
-
-	async addPlanEntry(planId, data) {
-		try {
-			const res = await this.axios.post('add_plan_entry/' + planId, data);
-			return res.data;
-		} catch (error) {
-			output.error(`Cannot add new test run to existing test plan due to ${error}`);
-		}
-	}
-
-	async getSuites(projectId) {
-		try {
-			const res = await this.axios.get('get_suites/' + projectId);
-			return res.data;
-		} catch (error) {
-			output.error(`Cannot get suites due to ${error}`);
-		}
-	}
-
-	async getConfigs(projectId) {
-		try {
-			const res = await this.axios.get('get_configs/' + projectId);
-			return res.data;
-		} catch (error) {
-			output.error(`Cannot get configs due to ${error}`);
-		}
-	}
-
-	async addRun(projectId, data) {
-		try {
-			const res = await this.axios.post('add_run/' + projectId, data);
-			return res.data;
-		} catch (error) {
-			output.error(`Cannot add new run due to ${error}`);
-		}
-	}
-
-	async updateRun(runId, data) {
-		try {
-			const res = await this.axios.post('update_run/' + runId, data);
-			output.log(`The run with id: ${runId} is updated`);
-			return res.data;
-		} catch (error) {
-			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
-			output.error(`Cannot update run due to ${parsedError}`);
-			output.error(`Request data was: ${JSON.stringify(data)}`);
-		}
-	}
-
-	async getResultsForCase(runId, caseId) {
-		return this.axios.get(`get_results_for_case/${runId}/${caseId}`).then((res) => {
-			output.log(`The response is ${JSON.stringify(res.data)}`);
-			output.log(`The case ${caseId} on run ${runId} is updated`);
-			return res.data;
-		}).catch(error => {
-			output.error(`Cannot get results for case ${caseId} on run ${runId} due to ${error}`);
-		});
-	}
-
-	async addResultsForCases(runId, data) {
-		return this.axios.post('add_results_for_cases/' + runId, data).then((res) => {
-			output.log(`The response is ${JSON.stringify(res.data)}`);
-			return res.data;
-		}).catch(error => {
-			const parsedError = error && error.response && error.response.data ? error.response.data.error : error;
-			output.error(`Cannot add result for case due to ${parsedError}`);
-			output.error(`Request data was: ${JSON.stringify(data)}`);
-		});
-	}
-
-	async addAttachmentToResult(resultId, imageFile) {
-		let form = new FormData();
-		form.append('attachment', fs.createReadStream(path.join(global.output_dir, imageFile.toString())));
-
-		this.axios({
-			method: 'post',
-			data: form,
-			url: 'add_attachment_to_result/' + resultId,
-			headers: form.getHeaders()
-		}).catch(err => {
-			output.error(`Cannot attach file due to ${err}`);
-		});
+for (const helperName of supportedHelpers) {
+	if (Object.keys(helpers).indexOf(helperName) > -1) {
+		helper = helpers[helperName];
 	}
 }
 
@@ -246,7 +122,7 @@ module.exports = (config) => {
 				const caseId = tag.split(prefixTag)[1];
 				// remove duplicates caused by retries
 				if (failedTestCaseIds.has(caseId)) {
-					failedTests = failedTests.filter(({case_id}) => case_id !== caseId)
+					failedTests = failedTests.filter(({case_id}) => case_id !== caseId);
 				}
 				passedTests.push({ case_id: caseId, elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
 			}
@@ -294,11 +170,11 @@ module.exports = (config) => {
 						suite_id: suiteId,
 						name: runName,
 						include_all: true,
-						config_ids: config_ids,
+						config_ids,
 						runs: [{
 							include_all: false,
 							case_ids: ids,
-							config_ids: config_ids
+							config_ids
 						}]
 					};
 
@@ -311,11 +187,11 @@ module.exports = (config) => {
 							suite_id: suiteId,
 							name: runName,
 							include_all: true,
-							config_ids: config_ids,
+							config_ids,
 							runs: [{
 								include_all: false,
 								case_ids: ids,
-								config_ids: config_ids
+								config_ids
 							}]
 						}]
 					};
@@ -341,7 +217,7 @@ module.exports = (config) => {
 
 			passedTests.forEach(test => {
 				testCase.passed.comment = `Test case C${test.case_id} is PASSED.`;
-				test = Object.assign(test, testCase.passed);
+				Object.assign(test, testCase.passed);
 			});
 
 			failedTests.forEach(test => {
@@ -352,7 +228,7 @@ module.exports = (config) => {
 					errorString = errors[test.case_id];
 				}
 				testCase.failed.comment = `Test case C${test.case_id} is FAILED due to **${errorString}**`;
-				test = Object.assign(test, testCase.failed);
+				Object.assign(test, testCase.failed);
 			});
 
 			const allResults = passedTests.concat(failedTests);
@@ -361,8 +237,8 @@ module.exports = (config) => {
 			let validResults = [];
 			testrail.getCases(config.projectId, config.suiteId).then(res => {
 				if (res.length) {
-					validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id))
-					const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
+					validResults = allResults.filter(result => res.find(tag => tag.id === result.case_id));
+					const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id === result.case_id));
 					if (missingLabels.length) {
 						output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
 					}
@@ -377,11 +253,11 @@ module.exports = (config) => {
 								if (helper) {
 									testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
 								}
-							});		
+							});
 						});
 					});
 				}
-			})	
+			});
 		} else {
 			output.log('There is no TC, hence no test run is created');
 		}
