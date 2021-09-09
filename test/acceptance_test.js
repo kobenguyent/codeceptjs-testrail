@@ -79,9 +79,8 @@ describe('Valid config file', () => {
 	describe('Add run and test result', () => {
 		it('should update the results on passed case', (done) => {
 			exec(`${runner} --grep @pass -c ${mockTestrailConfig}`, (err, stdout) => {
-				expect(stdout).to.include('The run with id: 1 is updated');
-				expect(stdout).to.include('The run 1 is updated with');
-				expect(stdout).to.include('"status_id":1');
+				expect(stdout).to.include('addRun: SUCCESS - the request data is {"suite_id":1,"name":"Custom run name","include_all":false}');
+				expect(stdout).to.include('addRun: SUCCESS - the response data is {"suite_id":1,"name":"Custom run name","include_all":false,"id":1}');
 				done();
 			});
 		});
@@ -89,8 +88,8 @@ describe('Valid config file', () => {
 		it('should update the results on failed case', (done) => {
 			exec(`${runner} --grep @fail -c ${mockTestrailConfig}`, (err, stdout) => {
 				expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
-				expect(stdout).to.include('The case 2 on run 2 is updated');
-				expect(stdout).to.include('"status_id":5');
+				expect(stdout).to.include('addRun: SUCCESS - the request data is {"suite_id":1,"name":"Custom run name","include_all":false}');
+				expect(stdout).to.include('addRun: SUCCESS - the response data is {"suite_id":1,"name":"Custom run name","include_all":false,"id":2}');
 				done();
 			});
 		});
