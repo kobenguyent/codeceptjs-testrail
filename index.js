@@ -237,8 +237,8 @@ module.exports = (config) => {
 			let validResults = [];
 			testrail.getCases(config.projectId, config.suiteId).then(res => {
 				if (res.length) {
-					validResults = allResults.filter(result => res.find(tag => tag.id === result.case_id));
-					const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id === result.case_id));
+					validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id));
+					const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
 					if (missingLabels.length) {
 						output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
 					}
