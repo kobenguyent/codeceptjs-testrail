@@ -3,6 +3,8 @@
   "/index.php?/api/v2/add_run/1": "/add_run/",
   "/index.php?/api/v2/update_run/1": "/update_run/",
   "/index.php?/api/v2/update_run/2": "/update_run/",
+  "/index.php?/api/v2/get_run/1": "/get_run/",
+  "/index.php?/api/v2/get_run/2": "/get_run/",
   "/index.php?/api/v2/add_results_for_cases/1": "/add_results_for_cases/",
   "/index.php?/api/v2/add_results_for_cases/2": "/add_results_for_cases/",
   "/index.php?/api/v2/get_cases/1&suite_id=1": "/get_cases/",
