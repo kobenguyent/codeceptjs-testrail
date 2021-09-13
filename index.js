@@ -219,7 +219,7 @@ module.exports = (config) => {
 
 					// Do not update the run if it is part of a plan, but this has not been specified in the config
 					const runData = await _getTestRun(runId)
-					if (runData && runData.plan_id) {
+					if (runData && !runData.plan_id) {
 						await _updateTestRun(runId, ids);
 					}
 				} catch (error) {
