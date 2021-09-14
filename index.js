@@ -59,6 +59,14 @@ module.exports = (config) => {
 		}
 	}
 
+	async function _getTestRun(runId) {
+		try {
+			await testrail.getRun(runId);
+		} catch (error) {
+			output.error(`Cannot get run due to ${error}`);
+		}
+	}
+
 	async function _addTestRun(projectId, suiteId, runName) {
 		try {
 			return testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false });
@@ -209,7 +217,11 @@ module.exports = (config) => {
 						runId = res.id;
 					}
 
-					await _updateTestRun(runId, ids);
+					// Do not update the run if it is part of a plan, but this has not been specified in the config
+					const runData = await _getTestRun(runId)
+					if (runData && !runData.plan_id) {
+						await _updateTestRun(runId, ids);
+					}
 				} catch (error) {
 					output.error(error);
 				}
