@@ -264,7 +264,7 @@ module.exports = (config) => {
 							testrail.getResultsForCase(runId, test.case_id).then(res => {
 								try {
 									helper && testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
-								} catch(err) => {
+								} catch(err) {
 									output.error(`Cannot add attachment due to error: ${e}`)
 								})
 							});
