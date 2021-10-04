@@ -11,16 +11,16 @@ const supportedHelpers = [
 	'Playwright',
 	'TestCafe'
 ];
+
 const defaultConfig = {
 	host: '',
 	user: '',
 	password: '',
-	enabled: false
-};
-
-const testCase = {
-	passed: { status_id: 1 },
-	failed: { status_id: 5 },
+	enabled: false,
+	testCase: {
+		passed: { status_id: 1 },
+		failed: { status_id: 5 },
+	}
 };
 
 let helper;
@@ -228,7 +228,12 @@ module.exports = (config) => {
 			}
 
 			passedTests.forEach(test => {
-				testCase.passed.comment = `Test case C${test.case_id} is PASSED.`;
+				const testCase = {
+					passed: {
+						comment: `Test case C${test.case_id} is PASSED.`,
+						status_id: config.testCase.passed.status_id
+					}
+				}
 				Object.assign(test, testCase.passed);
 			});
 
@@ -239,7 +244,12 @@ module.exports = (config) => {
 				} else {
 					errorString = errors[test.case_id];
 				}
-				testCase.failed.comment = `Test case C${test.case_id} is FAILED due to **${errorString}**`;
+				const testCase = {
+					failed: {
+						comment: `Test case C${test.case_id} is FAILED due to **${errorString}**`,
+						status_id: config.testCase.failed.status_id
+					}
+				}
 				Object.assign(test, testCase.failed);
 			});
 
