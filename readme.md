@@ -112,7 +112,8 @@ plugins: {
 		  passed: { status_id: 1 },
 		  failed: { status_id: 5 },
 	  }
-    enabled: true
+    enabled: true,
+    closeTestRun: true,
   }
 }
 ...
@@ -130,3 +131,4 @@ plugins: {
 - `testCase`: if you configured testrail to use custom test case statuses, you can override default status_id with yours. 
 - `configuration`: provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run.
 - `debugLog`: show more logs for debugging purposes.
+- `closeTestRun`: if you wish to close the test run afterwards.

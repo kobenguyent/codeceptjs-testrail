@@ -20,7 +20,8 @@ const defaultConfig = {
 	testCase: {
 		passed: { status_id: 1 },
 		failed: { status_id: 5 },
-	}
+	},
+	closeTestRun: false
 };
 
 let helper;
@@ -279,6 +280,12 @@ module.exports = (config) => {
 								}
 							});
 						});
+
+						if (config.closeTestRun === true) {
+							testrail.closeTestRun(runId).then(res => {
+								output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
+							});
+						}
 					});
 				}
 			});
