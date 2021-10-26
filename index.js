@@ -62,7 +62,7 @@ module.exports = (config) => {
 
 	async function _getTestRun(runId) {
 		try {
-			await testrail.getRun(runId);
+			return testrail.getRun(runId);
 		} catch (error) {
 			output.error(`Cannot get run due to ${error}`);
 		}
