@@ -21,7 +21,8 @@ const defaultConfig = {
 		passed: { status_id: 1 },
 		failed: { status_id: 5 },
 	},
-	closeTestRun: false
+	closeTestRun: false,
+	version: '1' // this is the build version - OPTIONAL
 };
 
 let helper;
@@ -236,7 +237,7 @@ module.exports = (config) => {
 					passed: {
 						comment: `Test case C${test.case_id} is PASSED.`,
 						status_id: config.testCase.passed.status_id,
-						version: '1' // needed in the latest TR API
+						version: config.version
 					}
 				}
 				Object.assign(test, testCase.passed);
@@ -254,7 +255,7 @@ module.exports = (config) => {
 					failed: {
 						comment: `Test case C${test.case_id} is FAILED due to **${errorString}**`,
 						status_id: config.testCase.failed.status_id,
-						version: '1' // needed in the latest TR API
+						version: config.version
 					}
 				}
 				Object.assign(test, testCase.failed);
