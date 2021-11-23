@@ -112,10 +112,11 @@ module.exports = (config) => {
 
 			if (tag.includes(prefixTag)) {
 				const caseId = tag.split(prefixTag)[1];
+				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				if (!failedTestCaseIds.has(caseId)) {
 					// else it also failed on retry so we shouldnt add in a duplicate
 					failedTestCaseIds.add(caseId);
-					failedTests.push({ case_id: caseId, elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
+					failedTests.push({ case_id: caseId, elapsed: elapsed});
 				}
 				errors[tag.split(prefixTag)[1]] = err;
 				attachments[tag.split(prefixTag)[1]] = fileName;
@@ -129,11 +130,12 @@ module.exports = (config) => {
 		test.tags.forEach(tag => {
 			if (tag.includes(prefixTag)) {
 				const caseId = tag.split(prefixTag)[1];
+				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				// remove duplicates caused by retries
 				if (failedTestCaseIds.has(caseId)) {
 					failedTests = failedTests.filter(({case_id}) => case_id !== caseId);
 				}
-				passedTests.push({ case_id: caseId, elapsed: test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s` });
+				passedTests.push({ case_id: caseId, elapsed: elapsed });
 			}
 		});
 	});
@@ -228,16 +230,19 @@ module.exports = (config) => {
 				}
 			}
 
+			// Assign extra/missing params for each PASSED test case
 			passedTests.forEach(test => {
 				const testCase = {
 					passed: {
 						comment: `Test case C${test.case_id} is PASSED.`,
-						status_id: config.testCase.passed.status_id
+						status_id: config.testCase.passed.status_id,
+						version: '1' // needed in the latest TR API
 					}
 				}
 				Object.assign(test, testCase.passed);
 			});
 
+			// Assign extra/missing params for each FAILED test case
 			failedTests.forEach(test => {
 				let errorString = '';
 				if (errors[test.case_id]['message']) {
@@ -248,7 +253,8 @@ module.exports = (config) => {
 				const testCase = {
 					failed: {
 						comment: `Test case C${test.case_id} is FAILED due to **${errorString}**`,
-						status_id: config.testCase.failed.status_id
+						status_id: config.testCase.failed.status_id,
+						version: '1' // needed in the latest TR API
 					}
 				}
 				Object.assign(test, testCase.failed);
@@ -256,7 +262,8 @@ module.exports = (config) => {
 
 			const allResults = passedTests.concat(failedTests);
 
-			// Before POST-ing the results, filter the array for any non-existing tags in TR
+			// Before POST-ing the results, filter the array for any non-existing tags in TR test bucket assigned to this test run
+			// This is to avoid any failure to POST results due to labels in the results array not part of the test run
 			let validResults = [];
 			testrail.getCases(config.projectId, config.suiteId).then(res => {
 				if (res.length) {
