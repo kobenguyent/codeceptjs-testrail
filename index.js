@@ -21,7 +21,7 @@ const defaultConfig = {
 		passed: { status_id: 1 },
 		failed: { status_id: 5 },
 	},
-	closeTestRun: false,
+	closeTestRun: true,
 	version: '1' // this is the build version - OPTIONAL
 };
 
