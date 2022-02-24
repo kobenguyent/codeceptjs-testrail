@@ -128,7 +128,7 @@ plugins: {
 - `plan - existingPlanId`: if you provide an existing plan ID, the new test run is added to that test plan. Otherwise, new test plan is created and new test run is added to that test plan.
 - `plan - name`: your desired plan name.
 - `plan - description`: your desired description to your test plan.
-- `plan - onlyRunIds` (Optional): if `true` it will consider only test cases that run while posting results to testrail
+- `plan - onlyCaseIds` (Optional): if `true` it will consider only test cases that actually run while posting results to testrail
 - `testCase`: if you configured testrail to use custom test case statuses, you can override default status_id with yours. 
 - `configuration`: provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run.
 - `debugLog`: show more logs for debugging purposes.
