@@ -181,8 +181,9 @@ module.exports = (config) => {
 					const data = {
 						suite_id: suiteId,
 						name: runName,
-						include_all: true,
+						include_all: !config.plan.onlyRunIds,
 						config_ids,
+						case_ids: ids,
 						runs: [{
 							include_all: false,
 							case_ids: ids,
