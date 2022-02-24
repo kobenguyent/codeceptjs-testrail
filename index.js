@@ -181,7 +181,22 @@ module.exports = (config) => {
 					const data = {
 						suite_id: suiteId,
 						name: runName,
-						include_all: !config.plan.onlyCaseIds,
+						include_all: true,
+						config_ids,
+						runs: [{
+							include_all: false,
+							case_ids: ids,
+							config_ids
+						}]
+					};
+
+					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
+					runId = config.runId ? config.runId : res.runs[0].id;
+				} else if (config.plan.existingPlanId && config.plan.onlyCaseIds) {
+					const data = {
+						suite_id: suiteId,
+						name: runName,
+						include_all: false,
 						config_ids,
 						case_ids: ids,
 						runs: [{
