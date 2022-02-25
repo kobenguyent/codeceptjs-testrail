@@ -56,7 +56,7 @@ module.exports = (config) => {
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
 	prefixTag = config.prefixTag || "@C";
 
-	let prefixRegExp = new RegExp(`${prefixTag}[\d]*`);
+	const prefixRegExp = new RegExp(`${prefixTag}\\d`);
 
 	async function _updateTestRun(runId, ids) {
 		try {
@@ -96,7 +96,8 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.started, async (test) => {
 		if (test.body) {
 			if (test.body.includes("addExampleInTable")) {
-				const testRailTag = /"testRailTag":"(@C\d+)"/.exec(test.title);
+				const xxx = new RegExp(`"testRailTag":"(${prefixRegExp}"`);
+				const testRailTag = xxx.exec(test.title);
 				if (testRailTag) {
 					test.tags.push(testRailTag[1]);
 				}
@@ -282,7 +283,7 @@ module.exports = (config) => {
 			passedTests.forEach((test) => {
 				const testCase = {
 					passed: {
-						comment: `Test case C${test.case_id} is PASSED.`,
+						comment: `Test case ${prefixTag}}${test.case_id} is PASSED.`,
 						status_id: config.testCase.passed.status_id,
 						version: config.version
 					}
@@ -379,6 +380,7 @@ module.exports = (config) => {
 			output.log("There is no TC, hence no test run is created");
 		}
 	});
+
 	return this;
 };
 
