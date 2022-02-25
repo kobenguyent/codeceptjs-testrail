@@ -1,28 +1,28 @@
-const { event } = require("codeceptjs");
-const Container = require("codeceptjs").container;
+const { event } = require('codeceptjs');
+const Container = require('codeceptjs').container;
 const helpers = Container.helpers();
-const output = require("./lib/output");
-const TestRail = require("./lib/testrail");
+const output = require('./lib/output');
+const TestRail = require('./lib/testrail');
 const supportedHelpers = [
-	"WebDriver",
-	"Appium",
-	"Nightmare",
-	"Puppeteer",
-	"Playwright",
-	"TestCafe"
+	'WebDriver',
+	'Appium',
+	'Nightmare',
+	'Puppeteer',
+	'Playwright',
+	'TestCafe',
 ];
 
 const defaultConfig = {
-	host: "",
-	user: "",
-	password: "",
+	host: '',
+	user: '',
+	password: '',
 	enabled: false,
 	testCase: {
 		passed: { status_id: 1 },
-		failed: { status_id: 5 }
+		failed: { status_id: 5 },
 	},
 	closeTestRun: true,
-	version: "1" // this is the build version - OPTIONAL
+	version: '1', // this is the build version - OPTIONAL
 };
 
 let helper;
@@ -33,14 +33,14 @@ for (const helperName of supportedHelpers) {
 	}
 }
 
-module.exports = (config) => {
+module.exports = config => {
 	config = Object.assign(defaultConfig, config);
 	output.showDebugLog(config.debugLog);
 
-	if (config.host === "" || config.user === "" || config.password === "")
-		throw new Error("Please provide proper Testrail host or credentials");
+	if (config.host === '' || config.user === '' || config.password === '')
+		throw new Error('Please provide proper Testrail host or credentials');
 	if (!config.projectId)
-		throw new Error("Please provide project id in config file");
+		throw new Error('Please provide project id in config file');
 
 	const testrail = new TestRail(config);
 
@@ -51,10 +51,10 @@ module.exports = (config) => {
 	let errors = {};
 	let attachments = {};
 	let prefixTag;
-	let defaultElapsedTime = "1s";
+	let defaultElapsedTime = '1s';
 
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
-	prefixTag = config.prefixTag || "@C";
+	prefixTag = config.prefixTag || '@C';
 
 	const prefixRegExp = new RegExp(`${prefixTag}\\d+`);
 
@@ -79,11 +79,11 @@ module.exports = (config) => {
 			return testrail.addRun(projectId, {
 				suite_id: suiteId,
 				name: runName,
-				include_all: false
+				include_all: false,
 			});
 		} catch (error) {
 			output.error(
-				`Cannot create new test run due to ${JSON.stringify(error)}`
+				`Cannot create new test run due to ${JSON.stringify(error)}`,
 			);
 		}
 	}
@@ -93,11 +93,11 @@ module.exports = (config) => {
 		return testrail.addPlan(projectId, planData);
 	}
 
-	event.dispatcher.on(event.test.started, async (test) => {
+	event.dispatcher.on(event.test.started, async test => {
 		if (test.body) {
-			if (test.body.includes("addExampleInTable")) {
+			if (test.body.includes('addExampleInTable')) {
 				const testRailTagRegExp = new RegExp(
-					`"testRailTag":"(${prefixRegExp})"`
+					`"testRailTag":"(${prefixRegExp})"`,
 				);
 				const testRailTag = testRailTagRegExp.exec(test.title);
 				if (testRailTag) {
@@ -113,11 +113,11 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.failed, async (test, err) => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
-		test.tags.forEach(async (tag) => {
+		test.tags.forEach(async tag => {
 			const uuid = Math.floor(new Date().getTime() / 1000);
 			const fileName = `${uuid}.failed.png`;
 			try {
-				output.log("Saving the screenshot...");
+				output.log('Saving the screenshot...');
 				if (helper) {
 					await helper.saveScreenshot(fileName);
 				}
@@ -128,7 +128,7 @@ module.exports = (config) => {
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
 				const elapsed =
-					test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`;
+          test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`;
 				if (!failedTestCaseIds.has(caseId)) {
 					// else it also failed on retry so we shouldnt add in a duplicate
 					failedTestCaseIds.add(caseId);
@@ -140,14 +140,14 @@ module.exports = (config) => {
 		});
 	});
 
-	event.dispatcher.on(event.test.passed, (test) => {
+	event.dispatcher.on(event.test.passed, test => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
-		test.tags.forEach((tag) => {
+		test.tags.forEach(tag => {
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
 				const elapsed =
-					test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`;
+          test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`;
 				// remove duplicates caused by retries
 				if (failedTestCaseIds.has(caseId)) {
 					failedTests = failedTests.filter(({ case_id }) => case_id !== caseId);
@@ -162,9 +162,9 @@ module.exports = (config) => {
 		let ids = [];
 		let config_ids = [];
 
-		mergedTests.forEach((test) => {
+		mergedTests.forEach(test => {
 			for (let [key, value] of Object.entries(test)) {
-				if (key === "case_id") {
+				if (key === 'case_id') {
 					ids.push(value);
 				}
 			}
@@ -203,14 +203,14 @@ module.exports = (config) => {
 							{
 								include_all: false,
 								case_ids: ids,
-								config_ids
-							}
-						]
+								config_ids,
+							},
+						],
 					};
 
 					const res = await testrail.addPlanEntry(
 						config.plan.existingPlanId,
-						data
+						data,
 					);
 					runId = config.runId ? config.runId : res.runs[0].id;
 				} else if (config.plan) {
@@ -224,20 +224,20 @@ module.exports = (config) => {
 								{
 									include_all: false,
 									case_ids: ids,
-									config_ids
-								}
-							]
+									config_ids,
+								},
+							],
 						};
 
 						const res = await testrail.addPlanEntry(
 							config.plan.existingPlanId,
-							data
+							data,
 						);
 						runId = config.runId ? config.runId : res.runs[0].id;
 					}
 				} else {
 					const data = {
-						description: config.plan.description || "",
+						description: config.plan.description || '',
 						entries: [
 							{
 								suite_id: suiteId,
@@ -248,17 +248,17 @@ module.exports = (config) => {
 									{
 										include_all: false,
 										case_ids: ids,
-										config_ids
-									}
-								]
-							}
-						]
+										config_ids,
+									},
+								],
+							},
+						],
 					};
 
 					const res = await _addTestPlan(
 						config.projectId,
 						config.plan.name,
-						data
+						data,
 					);
 					runId = res.entries[0].runs[0].id;
 				}
@@ -282,24 +282,24 @@ module.exports = (config) => {
 			}
 
 			// Assign extra/missing params for each PASSED test case
-			passedTests.forEach((test) => {
+			passedTests.forEach(test => {
 				const testCase = {
 					passed: {
 						comment: `Test case ${prefixTag}}${test.case_id} is PASSED.`,
 						status_id: config.testCase.passed.status_id,
-						version: config.version
-					}
+						version: config.version,
+					},
 				};
 				Object.assign(test, testCase.passed);
 			});
 
 			// Assign extra/missing params for each FAILED test case
-			failedTests.forEach((test) => {
-				let errorString = "";
-				if (errors[test.case_id]["message"]) {
-					errorString = errors[test.case_id]["message"].replace(
+			failedTests.forEach(test => {
+				let errorString = '';
+				if (errors[test.case_id]['message']) {
+					errorString = errors[test.case_id]['message'].replace(
 						/\u001b\[.*?m/g,
-						""
+						'',
 					);
 				} else {
 					errorString = errors[test.case_id];
@@ -308,8 +308,8 @@ module.exports = (config) => {
 					failed: {
 						comment: `Test case C${test.case_id} is FAILED due to **${errorString}**`,
 						status_id: config.testCase.failed.status_id,
-						version: config.version
-					}
+						version: config.version,
+					},
 				};
 				Object.assign(test, testCase.failed);
 			});
@@ -321,57 +321,55 @@ module.exports = (config) => {
 			let validResults = [];
 			testrail
 				.getCases(config.projectId, config.suiteId)
-				.then((res) => {
+				.then(res => {
 					if (res.length) {
-						validResults = allResults.filter((result) =>
-							res.find((tag) => tag.id == result.case_id)
+						validResults = allResults.filter(result =>
+							res.find(tag => tag.id == result.case_id),
 						);
 						const missingLabels = allResults.filter(
-							(result) =>
+							result =>
 								!validResults.find(
-									(vResult) => vResult.case_id == result.case_id
-								)
+									vResult => vResult.case_id == result.case_id,
+								),
 						);
 						if (missingLabels.length) {
 							output.error(
 								`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(
-									missingLabels.map((l) => l.case_id)
-								)}`
+									missingLabels.map(l => l.case_id),
+								)}`,
 							);
 						}
 					}
 				})
 				.then(() => {
-					if (!!validResults.length) {
+					if (validResults.length) {
 						testrail
 							.addResultsForCases(runId, { results: validResults })
-							.then((res) => {
+							.then(res => {
 								output.log(
-									`The run ${runId} is updated with ${JSON.stringify(res)}`
+									`The run ${runId} is updated with ${JSON.stringify(res)}`,
 								);
 
-								failedTests.forEach((test) => {
-									testrail
-										.getResultsForCase(runId, test.case_id)
-										.then((res) => {
-											try {
-												helper &&
-													testrail.addAttachmentToResult(
-														res[0].id,
-														attachments[test.case_id]
-													);
-											} catch (err) {
-												output.error(
-													`Cannot add attachment due to error: ${err}`
-												);
-											}
-										});
+								failedTests.forEach(test => {
+									testrail.getResultsForCase(runId, test.case_id).then(res => {
+										try {
+											helper &&
+                        testrail.addAttachmentToResult(
+                        	res[0].id,
+                        	attachments[test.case_id],
+                        );
+										} catch (err) {
+											output.error(
+												`Cannot add attachment due to error: ${err}`,
+											);
+										}
+									});
 								});
 
 								if (config.closeTestRun === true) {
-									testrail.closeTestRun(runId).then((res) => {
+									testrail.closeTestRun(runId).then(res => {
 										output.log(
-											`The run ${runId} is updated with ${JSON.stringify(res)}`
+											`The run ${runId} is updated with ${JSON.stringify(res)}`,
 										);
 									});
 								}
@@ -379,7 +377,7 @@ module.exports = (config) => {
 					}
 				});
 		} else {
-			output.log("There is no TC, hence no test run is created");
+			output.log('There is no TC, hence no test run is created');
 		}
 	});
 
