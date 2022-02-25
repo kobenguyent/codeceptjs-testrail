@@ -179,8 +179,8 @@ module.exports = (config) => {
 					}
 				}
 			}
-			if (config.plan.existingPlanId) {
-				if (config.plan && config.plan.onlyCaseIds) {
+			if (config.plan) {
+				if (config.plan.existingPlanId && config.plan.onlyCaseIds) {
 				
 					const data = {
 						suite_id: suiteId,
