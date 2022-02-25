@@ -56,7 +56,7 @@ module.exports = (config) => {
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
 	prefixTag = config.prefixTag || "@C";
 
-	const prefixRegExp = new RegExp(`${prefixTag}\\d`);
+	const prefixRegExp = new RegExp(`${prefixTag}\\d+`);
 
 	async function _updateTestRun(runId, ids) {
 		try {
@@ -96,8 +96,10 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.started, async (test) => {
 		if (test.body) {
 			if (test.body.includes("addExampleInTable")) {
-				const xxx = new RegExp(`"testRailTag":"(${prefixRegExp}"`);
-				const testRailTag = xxx.exec(test.title);
+				const testRailTagRegExp = new RegExp(
+					`"testRailTag":"(${prefixRegExp})"`
+				);
+				const testRailTag = testRailTagRegExp.exec(test.title);
 				if (testRailTag) {
 					test.tags.push(testRailTag[1]);
 				}
@@ -203,6 +205,7 @@ module.exports = (config) => {
 								case_ids: ids,
 								config_ids
 							}
+						]
 					};
 
 					const res = await testrail.addPlanEntry(
@@ -210,7 +213,8 @@ module.exports = (config) => {
 						data
 					);
 					runId = config.runId ? config.runId : res.runs[0].id;
-				} else if (config.plan.existingPlanId) {
+				} else if (config.plan) {
+					if (config.plan.existingPlanId) {
 						const data = {
 							suite_id: suiteId,
 							name: runName,
