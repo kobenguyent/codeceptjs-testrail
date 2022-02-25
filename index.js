@@ -203,7 +203,6 @@ module.exports = (config) => {
 								case_ids: ids,
 								config_ids
 							}
-						]
 					};
 
 					const res = await testrail.addPlanEntry(
@@ -211,8 +210,7 @@ module.exports = (config) => {
 						data
 					);
 					runId = config.runId ? config.runId : res.runs[0].id;
-				} else if (config.plan) {
-					if (config.plan.existingPlanId) {
+				} else if (config.plan.existingPlanId) {
 						const data = {
 							suite_id: suiteId,
 							name: runName,

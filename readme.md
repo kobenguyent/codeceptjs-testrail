@@ -1,9 +1,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e935df05fa244cf1bf435c3f59a66fe4)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-testrail?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-testrail&amp;utm_campaign=Badge_Grade)
-![npm](https://img.shields.io/npm/v/codeceptjs-testrail?color=light%20green) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-testrail.svg)](https://greenkeeper.io/)
+![npm](https://img.shields.io/npm/v/codeceptjs-testrail?color=light%20green) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-testrail.svg)](https://greenkeeper.io/) [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/peternguyew)
 
 ##### Testrail
 
-Testrail integration with CodeceptJS is never simple like this. The test run is created automatically after the execution. The screenshots of failed tests are also attached to test results.
+Testrail integration with CodeceptJS. The test run is created automatically after the execution. The screenshots of failed tests are also attached to test results.
 
 ![Attachemnt for failed case](http://g.recordit.co/ajaa2QRlnW.gif)
 
