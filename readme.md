@@ -133,4 +133,3 @@ plugins: {
 - `configuration`: provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run.
 - `debugLog`: show more logs for debugging purposes.
 - `closeTestRun`: by default test run is close afterwards.
-
