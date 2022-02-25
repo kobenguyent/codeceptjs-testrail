@@ -48,10 +48,14 @@ module.exports = (config) => {
 	let passedTests = [];
 	let errors = {};
 	let attachments = {};
-	let prefixTag = '@C';
+	let prefixTag;
 	let defaultElapsedTime = '1s';
 
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
+	prefixTag = config.prefixTag || '@C';
+
+	let prefixRegExp = new RegExp(`${prefixTag}[\d]*`)
+
 
 	async function _updateTestRun(runId, ids) {
 		try {
@@ -111,7 +115,7 @@ module.exports = (config) => {
 				output.log(`Cannot save screenshot due to ${error}`);
 			}
 
-			if (tag.includes(prefixTag)) {
+			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
 				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				if (!failedTestCaseIds.has(caseId)) {
@@ -129,7 +133,7 @@ module.exports = (config) => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
 		test.tags.forEach(tag => {
-			if (tag.includes(prefixTag)) {
+			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
 				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				// remove duplicates caused by retries
@@ -176,23 +180,8 @@ module.exports = (config) => {
 				}
 			}
 
-			if (config.plan) {
+			if (config.plan && config.plan.onlyCaseIds) {
 				if (config.plan.existingPlanId) {
-					const data = {
-						suite_id: suiteId,
-						name: runName,
-						include_all: true,
-						config_ids,
-						runs: [{
-							include_all: false,
-							case_ids: ids,
-							config_ids
-						}]
-					};
-
-					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
-					runId = config.runId ? config.runId : res.runs[0].id;
-				} else if (config.plan.existingPlanId && config.plan.onlyCaseIds) {
 					const data = {
 						suite_id: suiteId,
 						name: runName,
@@ -208,7 +197,23 @@ module.exports = (config) => {
 
 					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
 					runId = config.runId ? config.runId : res.runs[0].id;
-				} else {
+				} else if (config.plan) {
+					if (config.plan.existingPlanId) {
+						const data = {
+							suite_id: suiteId,
+							name: runName,
+							include_all: true,
+							config_ids,
+							runs: [{
+								include_all: false,
+								case_ids: ids,
+								config_ids
+							}]
+						};
+	
+						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
+						runId = config.runId ? config.runId : res.runs[0].id;
+					} else {
 					const data = {
 						description: config.plan.description || '',
 						entries: [{
