@@ -3,7 +3,7 @@
 
 ##### Testrail
 
-Testrail integration with CodeceptJS is never simple like this. The test run is created automatically after the execution. The screenshots of failed tests are also attached to test results.
+Testrail integration with CodeceptJS. The test run is created automatically after the execution. The screenshots of failed tests are also attached to test results.
 
 ![Attachemnt for failed case](http://g.recordit.co/ajaa2QRlnW.gif)
 
