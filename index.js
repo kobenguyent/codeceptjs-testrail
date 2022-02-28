@@ -180,29 +180,13 @@ module.exports = (config) => {
 				}
 			}
 			if (config.plan) {
-				if (config.plan.existingPlanId && config.plan.onlyCaseIds) {
-				
-					const data = {
-						suite_id: suiteId,
-						name: runName,
-						include_all: false,
-						config_ids,
-						case_ids: ids,
-						runs: [{
-							include_all: false,
-							case_ids: ids,
-							config_ids
-						}]
-					};
-
-					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
-					runId = config.runId ? config.runId : res.runs[0].id;
-				} else if (config.plan) {
 					if (config.plan.existingPlanId) {
+						let onlyCaseIds = config.plan.onlyCaseIds
 						const data = {
 							suite_id: suiteId,
 							name: runName,
-							include_all: true,
+							include_all: onlyCaseIds === true ? false : true,
+							case_ids: onlyCaseIds === true ? ids : null,
 							config_ids,
 							runs: [{
 								include_all: false,
@@ -213,7 +197,7 @@ module.exports = (config) => {
 	
 						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
 						runId = config.runId ? config.runId : res.runs[0].id;
-					} }else {
+					 }else {
 					const data = {
 						description: config.plan.description || '',
 						entries: [{
