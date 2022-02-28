@@ -181,7 +181,7 @@ module.exports = (config) => {
 			}
 			if (config.plan) {
 					if (config.plan.existingPlanId) {
-						let onlyCaseIds = config.plan.onlyCaseIds
+						const onlyCaseIds = config.plan.onlyCaseIds
 						const data = {
 							suite_id: suiteId,
 							name: runName,
