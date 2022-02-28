@@ -185,7 +185,7 @@ module.exports = (config) => {
 						const data = {
 							suite_id: suiteId,
 							name: runName,
-							include_all: onlyCaseIds === true ? false : true,
+							include_all: !onlyCaseIds,
 							case_ids: onlyCaseIds === true ? ids : null,
 							config_ids,
 							runs: [{
