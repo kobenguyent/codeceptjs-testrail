@@ -7,7 +7,7 @@ Testrail integration with CodeceptJS. The test run is created automatically afte
 
 ![Attachemnt for failed case](http://g.recordit.co/ajaa2QRlnW.gif)
 
-Now there is new feature, add the configuration to test run of test plan
+New feature, add the configuration to test run of test plan
 ![Attachemnt for failed case](http://g.recordit.co/uQLvQUq7cT.gif)
 
 ##### Requirement
