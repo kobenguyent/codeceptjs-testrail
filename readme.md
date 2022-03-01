@@ -20,7 +20,7 @@ npm i codeceptjs-testrail --save
 
 **Note:**
 
-- You should include the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
+- You should provide the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
 - To avoid creating multiple testruns, add `--suites` to `run-workers` command
 
 ```sh
