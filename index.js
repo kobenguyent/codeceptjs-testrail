@@ -48,10 +48,13 @@ module.exports = (config) => {
 	let passedTests = [];
 	let errors = {};
 	let attachments = {};
-	let prefixTag = '@C';
+	let prefixTag;
 	let defaultElapsedTime = '1s';
 
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
+	prefixTag = config.prefixTag || '@C';
+
+	const prefixRegExp = new RegExp(`${prefixTag}\\d+`)
 
 	async function _updateTestRun(runId, ids) {
 		try {
@@ -85,7 +88,8 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.started, async (test) => {
 		if (test.body) {
 			if (test.body.includes('addExampleInTable')) {
-				const testRailTag = /"testRailTag":"(@C\d+)"/.exec(test.title);
+				const testRailTagRegExp = new RegExp(`"testRailTag":"(${prefixRegExp}")`)
+				const testRailTag = testRailTagRegExp.exec(test.title);
 				if (testRailTag) {
 					test.tags.push(testRailTag[1]);
 				}
@@ -111,7 +115,7 @@ module.exports = (config) => {
 				output.log(`Cannot save screenshot due to ${error}`);
 			}
 
-			if (tag.includes(prefixTag)) {
+			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
 				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				if (!failedTestCaseIds.has(caseId)) {
@@ -129,7 +133,7 @@ module.exports = (config) => {
 		test.endTime = Date.now();
 		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
 		test.tags.forEach(tag => {
-			if (tag.includes(prefixTag)) {
+			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
 				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				// remove duplicates caused by retries
@@ -175,25 +179,28 @@ module.exports = (config) => {
 					}
 				}
 			}
-
 			if (config.plan) {
 				if (config.plan.existingPlanId) {
-					const data = {
-						suite_id: suiteId,
-						name: runName,
-						include_all: !config.plan.onlyCaseIds,
-						config_ids,
-						case_ids: ids,
-						runs: [{
-							include_all: false,
-							case_ids: ids,
-							config_ids
-						}]
-					};
-
-					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
-					runId = config.runId ? config.runId : res.runs[0].id;
-				} else {
+			
+					 let data = {
+									suite_id: suiteId,
+									name: runName,
+									include_all: !config.plan.onlyCaseIds,
+									config_ids,
+									runs: [{
+										include_all: false,
+										case_ids: ids,
+										config_ids
+									}]
+								};
+			 
+				  if (config.plan.onlyCaseIds) {
+					   data = { ...data, case_ids: ids  }
+				  }
+	
+						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
+						runId = config.runId ? config.runId : res.runs[0].id;
+					 }else {
 					const data = {
 						description: config.plan.description || '',
 						entries: [{
@@ -236,7 +243,7 @@ module.exports = (config) => {
 			passedTests.forEach(test => {
 				const testCase = {
 					passed: {
-						comment: `Test case C${test.case_id} is PASSED.`,
+						comment: `Test case ${prefixTag}}${test.case_id} is PASSED.`,
 						status_id: config.testCase.passed.status_id,
 						version: config.version
 					}
@@ -302,6 +309,7 @@ module.exports = (config) => {
 			output.log('There is no TC, hence no test run is created');
 		}
 	});
+
 	return this;
 };
 

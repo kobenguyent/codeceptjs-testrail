@@ -121,10 +121,12 @@ plugins: {
 
 **Possible config options:**
 
+
 | config name | required  | Description  | 
 |---|---|---|
 | suiteId  |  yes |  when your project is not under the single-suite mode, `suiteId` is needed. When you don't provide the `suiteId`, the first `suiteId` will be used as default. |
 | projectId  | yes  |  The project Id which is from the Testrail. This should be provided to make this plugin works | 
+|prefixTag| no | by default it is set to `'@C'`|
 | runName  |  no | your desired test run name. If you done provide this test run name, default test run name is as `This is a new test run on ${dd/mm/yyy H:M}` which is current day.  | 
 | runId  |  no |  provide the existing run Id when you want to update the existing one instead of creating new testrun. | 
 | plan - existingPlanId  |  no |  if you provide an existing plan ID, the new test run is added to that test plan. Otherwise, new test plan is created and new test run is added to that test plan. | 
@@ -135,4 +137,5 @@ plugins: {
 | configuration  | no  |  provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run. | 
 |  debugLog | no  |  show more logs for debugging purposes. | 
 |  closeTestRun |  no |  by default test run is close afterwards. | 
+
 
