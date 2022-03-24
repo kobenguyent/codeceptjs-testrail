@@ -88,7 +88,7 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.started, async (test) => {
 		if (test.body) {
 			if (test.body.includes('addExampleInTable')) {
-				const testRailTagRegExp = new RegExp(`"testRailTag":"(${prefixRegExp}")`)
+				const testRailTagRegExp = new RegExp(`"testRailTag":"(${prefixTag}\\d+)"`)
 				const testRailTag = testRailTagRegExp.exec(test.title);
 				if (testRailTag) {
 					test.tags.push(testRailTag[1]);
