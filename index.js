@@ -193,7 +193,7 @@ module.exports = (config) => {
 								};
 			 
 				  if (config.plan.onlyCaseIds) {
-					   data = {...data, case_ids: ids  }
+					   data = { ...data, case_ids: ids  }
 				  }
 	
 						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
