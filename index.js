@@ -87,14 +87,12 @@ module.exports = (config) => {
 
 	event.dispatcher.on(event.test.started, async (test) => {
 		if (test.body) {
-			if (test.body.includes('addExampleInTable')) {
-				const testRailTagRegExp = new RegExp(`"testRailTag":"(${prefixTag}\\d+)"`)
+				const testRailTagRegExp = new RegExp(`${prefixTag}\\d+`)
 				const testRailTag = testRailTagRegExp.exec(test.title);
 				if (testRailTag) {
-					test.tags.push(testRailTag[1]);
+					test.tags.push(testRailTag[0]);
 				}
 			}
-		}
 		test.startTime = Date.now();
 	});
 
@@ -195,7 +193,7 @@ module.exports = (config) => {
 								};
 			 
 				  if (config.plan.onlyCaseIds) {
-					   data = { ...data, case_ids: ids  }
+					   data = {...data, case_ids: ids  }
 				  }
 	
 						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
