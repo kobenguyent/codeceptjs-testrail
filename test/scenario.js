@@ -25,3 +25,7 @@ Scenario('Verify creating new user @C2', async () => {
 	const res = await I.sendPutRequest('/api/users', userData);
 	expect(res.data.name).to.eql('abc');
 }).tag('@fail');
+
+Scenario('Verify using different test tag @CaseId=1',  () => {
+	console.log('Hello world');
+});

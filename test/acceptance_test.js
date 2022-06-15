@@ -2,6 +2,7 @@ const { exec } = require('child_process');
 const { expect } = require('chai');
 const runner = './node_modules/.bin/codeceptjs run';
 const mockTestrailConfig = './test/config/mock.testrail.js';
+const mockCustomTestrailConfig = './test/config/mock.testrail.custom.js';
 const testrailPlugin = require('../index.js');
 
 describe('Incomplete info', () => {
@@ -90,6 +91,15 @@ describe('Valid config file', () => {
 				expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
 				expect(stdout).to.include('addRun: SUCCESS - the request data is {"suite_id":1,"name":"Custom run name","include_all":false}');
 				expect(stdout).to.include('addRun: SUCCESS - the response data is {"suite_id":1,"name":"Custom run name","include_all":false,"id":2}');
+				done();
+			});
+		});
+	});
+	describe('Use custom prefixTag', () => {
+		it('should pick up test case 1', (done) => {
+			exec (`${runner} --grep @pass -c ${mockCustomTestrailConfig}`, (err, stdout) => {
+				console.log(stdout);
+				console.log(err);
 				done();
 			});
 		});
