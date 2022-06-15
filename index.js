@@ -66,6 +66,7 @@ module.exports = (config) => {
 
 	async function _getTestRun(runId) {
 		try {
+			console.log(`Getting test run ${runId}`);
 			return testrail.getRun(runId);
 		} catch (error) {
 			output.error(`Cannot get run due to ${error}`);
@@ -74,6 +75,7 @@ module.exports = (config) => {
 
 	async function _addTestRun(projectId, suiteId, runName) {
 		try {
+			console.log('Adding new test run');
 			return testrail.addRun(projectId, { suite_id: suiteId, name: runName, include_all: false });
 		} catch (error) {
 			output.error(`Cannot create new test run due to ${JSON.stringify(error)}`);
