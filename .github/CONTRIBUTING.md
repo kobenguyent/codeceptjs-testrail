@@ -5,7 +5,7 @@ Thanks for getting here because you have a good will to improve CodeceptJS-testr
 To start you need:
 
 1.  Fork and clone the repo.
-2.  Run `npm i` to install all required libraries
+2.  Run `npm i` to install needed libraries
 3.  Do the changes.
 4.  Add/Update Test (if possible)
 5.  Update documentation
@@ -32,4 +32,4 @@ npm run test-server
 ```sh
 npm run acceptance_test
 ```
-Note: please check the db.json after the tests execution to not commit any changes.
+Note: please check the db.json after the test execution to not commit any changes.
