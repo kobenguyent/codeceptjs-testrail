@@ -46,6 +46,7 @@ module.exports = (config) => {
 	let runId;
 	let failedTests = [];
 	let passedTests = [];
+	let skippedTest = [];
 	let errors = {};
 	let attachments = {};
 	let prefixTag;
@@ -99,6 +100,22 @@ module.exports = (config) => {
 	});
 
 	const failedTestCaseIds = new Set();
+
+	event.dispatcher.on(event.test.skipped, async (test) => {
+		test.endTime = Date.now();
+		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
+		test.tags.forEach(tag => {
+			if (prefixRegExp.test(tag)) {
+				const caseId = tag.split(prefixTag)[1];
+				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
+				if (!failedTestCaseIds.has(caseId)) {
+					// else it also failed on retry, so we shouldn't add in a duplicate
+					skippedTest.add(caseId);
+					skippedTest.push({ case_id: caseId, elapsed: elapsed});
+				}
+			}
+		});
+	});
 
 	event.dispatcher.on(event.test.failed, async (test, err) => {
 		test.endTime = Date.now();
@@ -181,7 +198,7 @@ module.exports = (config) => {
 			}
 			if (config.plan) {
 				if (config.plan.existingPlanId) {
-			
+
 					 let data = {
 									suite_id: suiteId,
 									name: runName,
@@ -193,11 +210,11 @@ module.exports = (config) => {
 										config_ids
 									}]
 								};
-			 
+
 				  if (config.plan.onlyCaseIds) {
 					   data = { ...data, case_ids: ids  }
 				  }
-	
+
 						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
 						runId = config.runId ? config.runId : res.runs[0].id;
 					 }else {
@@ -269,7 +286,18 @@ module.exports = (config) => {
 				Object.assign(test, testCase.failed);
 			});
 
-			const allResults = passedTests.concat(failedTests);
+			skippedTest.forEach(test => {
+				const testCase = {
+					failed: {
+						comment: `SKIPPED - ${config.skipInfo.message}`,
+						status_id: config.testCase.failed.status_id,
+						version: config.version
+					}
+				}
+				Object.assign(test, testCase.failed);
+			});
+
+			const allResults = passedTests.concat(failedTests.concat(skippedTest));
 
 			// Before POST-ing the results, filter the array for any non-existing tags in TR test bucket assigned to this test run
 			// This is to avoid any failure to POST results due to labels in the results array not part of the test run
