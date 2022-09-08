@@ -1,4 +1,4 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e935df05fa244cf1bf435c3f59a66fe4)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-testrail?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-testrail&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e935df05fa244cf1bf435c3f59a66fe4)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-testrail?utm_source=github.com&utm_medium=referral&utm_content=PeterNgTr/codeceptjs-testrail&utm_campaign=Badge_Grade)
 ![npm](https://img.shields.io/npm/v/codeceptjs-testrail?color=light%20green) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-testrail.svg)](https://greenkeeper.io/) [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/peternguyew)
 
 ##### Testrail
@@ -69,14 +69,16 @@ A Gherkin example:
     Then I see search textbox
     And I see search button
 ```
+
 **Note:**
 TestRail tag in **Examples** from **Scenario Outline** available from version `1.7.4` and above
+
 ```gherkin
   @someTag
   Scenario Outline: Fill some field
     When I fill some field by text <text>
     Then I see text <text>
-    
+  
     Examples:
       | testRailTag | text      |
       | @C1234      | someText1 |
@@ -86,7 +88,7 @@ TestRail tag in **Examples** from **Scenario Outline** available from version `1
 ##### Configuration
 
 Add this plugin to config file:
-  
+
 ```js
 ...
 plugins: {
@@ -114,6 +116,9 @@ plugins: {
 	  }
     enabled: true,
     closeTestRun: true,
+    skipInfo: {
+		message: "Skipped due to failure in 'before' hook"
+    }
   }
 }
 ...
@@ -122,20 +127,19 @@ plugins: {
 **Possible config options:**
 
 
-| config name | required  | Description                                                                                                                                                                                                                        | 
-|---|---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| suiteId  |  yes | when your project is not under the single-suite mode, `suiteId` is needed. When you don't provide the `suiteId`, the first `suiteId` will be used as default.                                                                      |
-| projectId  | yes  | The project Id which is from the Testrail. This should be provided to make this plugin works                                                                                                                                       | 
-|prefixTag| no | by default it is set to `'@C'`                                                                                                                                                                                                     |
-| runName  |  no | your desired test run name. If you done provide this test run name, default test run name is as `This is a new test run on ${dd/mm/yyy H:M}` which is current day.                                                                 | 
-| runId  |  no | provide the existing run Id when you want to update the existing one instead of creating new testrun.                                                                                                                              | 
-| plan - existingPlanId  |  no | if you provide an existing plan ID, the new test run is added to that test plan. Otherwise, new test plan is created and new test run is added to that test plan.                                                                  | 
-| plan - name  |  no | your desired plan name.                                                                                                                                                                                                            | 
-|  plan - description |  no | your desired description to your test plan.                                                                                                                                                                                        | 
-|  plan - onlyCaseIds | no  | if `true` it will consider only test cases that actually run while posting results to testrail                                                                                                                                     | 
-| testCase  | no  | if you configured testrail to use custom test case statuses, you can override default status_id with yours.                                                                                                                        | 
-| configuration  | no  | provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run. | 
-|  debugLog | no  | show more logs for debugging purposes.                                                                                                                                                                                             | 
-|  closeTestRun |  no | if you wish to close the test run afterwards,by default test run is not closed afterwards.                                                                                                                                         | 
-
-
+| config name           | required | Description                                                                                                                                                                                                                        |
+| ----------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| suiteId               | yes      | when your project is not under the single-suite mode,`suiteId` is needed. When you don't provide the `suiteId`, the first `suiteId` will be used as default.                                                                       |
+| projectId             | yes      | The project Id which is from the Testrail. This should be provided to make this plugin works                                                                                                                                       |
+| prefixTag             | no       | by default it is set to`'@C'`                                                                                                                                                                                                      |
+| runName               | no       | your desired test run name. If you done provide this test run name, default test run name is as`This is a new test run on ${dd/mm/yyy H:M}` which is current day.                                                                  |
+| runId                 | no       | provide the existing run Id when you want to update the existing one instead of creating new testrun.                                                                                                                              |
+| plan - existingPlanId | no       | if you provide an existing plan ID, the new test run is added to that test plan. Otherwise, new test plan is created and new test run is added to that test plan.                                                                  |
+| plan - name           | no       | your desired plan name.                                                                                                                                                                                                            |
+| plan - description    | no       | your desired description to your test plan.                                                                                                                                                                                        |
+| plan - onlyCaseIds    | no       | if`true` it will consider only test cases that actually run while posting results to testrail                                                                                                                                      |
+| testCase              | no       | if you configured testrail to use custom test case statuses, you can override default status_id with yours.                                                                                                                        |
+| configuration         | no       | provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run. |
+| debugLog              | no       | show more logs for debugging purposes.                                                                                                                                                                                             |
+| closeTestRun          | no       | if you wish to close the test run afterwards,by default test run is not closed afterwards.                                                                                                                                         |
+| skipInfo - message    | no       | Message to comment for skipped cases                                                                                                                                                                                               |
