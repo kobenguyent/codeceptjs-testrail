@@ -260,7 +260,7 @@ module.exports = (config) => {
 			passedTests.forEach(test => {
 				const testCase = {
 					passed: {
-						comment: `Test case ${prefixTag}}${test.case_id} is PASSED.`,
+						comment: config.testCase.passed.comment || `Test case ${prefixTag}}${test.case_id} is *PASSED*.`,
 						status_id: config.testCase.passed.status_id,
 						version: config.version
 					}
@@ -278,7 +278,7 @@ module.exports = (config) => {
 				}
 				const testCase = {
 					failed: {
-						comment: `Test case C${test.case_id} is FAILED due to **${errorString}**`,
+						comment: config.testCase.failed.comment || `Test case C${test.case_id} is *FAILED* due to **${errorString}**`,
 						status_id: config.testCase.failed.status_id,
 						version: config.version
 					}

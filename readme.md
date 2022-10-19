@@ -111,8 +111,8 @@ plugins: {
       configName: 'leopard'
     },
     testCase: {
-		  passed: { status_id: 1 },
-		  failed: { status_id: 5 },
+		  passed: { status_id: 1, comment: 'This is passed on build 123' },
+		  failed: { status_id: 5, comment: 'This is failed on build 123' },
 	  }
     enabled: true,
     closeTestRun: true,
@@ -138,7 +138,7 @@ plugins: {
 | plan - name           | no       | your desired plan name.                                                                                                                                                                                                            |
 | plan - description    | no       | your desired description to your test plan.                                                                                                                                                                                        |
 | plan - onlyCaseIds    | no       | if`true` it will consider only test cases that actually run while posting results to testrail                                                                                                                                      |
-| testCase              | no       | if you configured testrail to use custom test case statuses, you can override default status_id with yours.                                                                                                                        |
+| testCase              | no       | if you configured testrail to use custom test case statuses, you can override default status_id with yours, or your custom comment.                                                                                                                        |
 | configuration         | no       | provide the created configuration group name - configuration name that you want to add to the test run. If you don't provide anything or wrong either group name or config name, there will be no configuration added to test run. |
 | debugLog              | no       | show more logs for debugging purposes.                                                                                                                                                                                             |
 | closeTestRun          | no       | if you wish to close the test run afterwards,by default test run is not closed afterwards.                                                                                                                                         |
