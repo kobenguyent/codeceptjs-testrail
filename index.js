@@ -107,11 +107,10 @@ module.exports = (config) => {
 		test.tags.forEach(tag => {
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
-				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
+				const elapsed = !test.elapsed ? defaultElapsedTime : `${test.elapsed}s`
 				if (!failedTestCaseIds.has(caseId)) {
 					// else it also failed on retry, so we shouldn't add in a duplicate
-					skippedTest.add(caseId);
-					skippedTest.push({ case_id: caseId, elapsed: elapsed});
+					skippedTest.push({ case_id: caseId, elapsed: elapsed });
 				}
 			}
 		});
@@ -138,7 +137,7 @@ module.exports = (config) => {
 				if (!failedTestCaseIds.has(caseId)) {
 					// else it also failed on retry so we shouldnt add in a duplicate
 					failedTestCaseIds.add(caseId);
-					failedTests.push({ case_id: caseId, elapsed: elapsed});
+					failedTests.push({ case_id: caseId, elapsed: elapsed });
 				}
 				errors[tag.split(prefixTag)[1]] = err;
 				attachments[tag.split(prefixTag)[1]] = fileName;
@@ -155,7 +154,7 @@ module.exports = (config) => {
 				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
 				// remove duplicates caused by retries
 				if (failedTestCaseIds.has(caseId)) {
-					failedTests = failedTests.filter(({case_id}) => case_id !== caseId);
+					failedTests = failedTests.filter(({ case_id }) => case_id !== caseId);
 				}
 				passedTests.push({ case_id: caseId, elapsed: elapsed });
 			}
@@ -163,7 +162,8 @@ module.exports = (config) => {
 	});
 
 	event.dispatcher.on(event.all.result, async () => {
-		const mergedTests = failedTests.concat(passedTests);
+		const mergedTests = [...failedTests, ...passedTests, ...skippedTest]
+
 		let ids = [];
 		let config_ids = [];
 
@@ -199,25 +199,25 @@ module.exports = (config) => {
 			if (config.plan) {
 				if (config.plan.existingPlanId) {
 
-					 let data = {
-									suite_id: suiteId,
-									name: runName,
-									include_all: !config.plan.onlyCaseIds,
-									config_ids,
-									runs: [{
-										include_all: false,
-										case_ids: ids,
-										config_ids
-									}]
-								};
+					let data = {
+						suite_id: suiteId,
+						name: runName,
+						include_all: !config.plan.onlyCaseIds,
+						config_ids,
+						runs: [{
+							include_all: false,
+							case_ids: ids,
+							config_ids
+						}]
+					};
 
-				  if (config.plan.onlyCaseIds) {
-					   data = { ...data, case_ids: ids  }
-				  }
+					if (config.plan.onlyCaseIds) {
+						data = { ...data, case_ids: ids }
+					}
 
-						const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
-						runId = config.runId ? config.runId : res.runs[0].id;
-					 }else {
+					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
+					runId = config.runId ? config.runId : res.runs[0].id;
+				} else {
 					const data = {
 						description: config.plan.description || '',
 						entries: [{
@@ -260,7 +260,7 @@ module.exports = (config) => {
 			passedTests.forEach(test => {
 				const testCase = {
 					passed: {
-						comment: config.testCase.passed.comment || `Test case ${prefixTag}}${test.case_id} is *PASSED*.`,
+						comment: config.testCase.passed.comment || `Test case ${prefixTag}${test.case_id} is *PASSED*.`,
 						status_id: config.testCase.passed.status_id,
 						version: config.version
 					}
@@ -290,7 +290,7 @@ module.exports = (config) => {
 				const testCase = {
 					failed: {
 						comment: `SKIPPED - ${config.skipInfo.message}`,
-						status_id: config.testCase.failed.status_id,
+						status_id: config.testCase.skipped.status_id,
 						version: config.version
 					}
 				}
@@ -319,7 +319,7 @@ module.exports = (config) => {
 							testrail.getResultsForCase(runId, test.case_id).then(res => {
 								try {
 									helper && testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
-								} catch(err) {
+								} catch (err) {
 									output.error(`Cannot add attachment due to error: ${err}`)
 								}
 							});
