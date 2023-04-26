@@ -43,7 +43,7 @@
     "faker": "^4.1.0",
     "json-server": "^0.17.0",
     "mocha": "^10.2.0",
-    "semantic-release": "^19.0.2"
+    "semantic-release": "^21.0.1"
   },
   "files": [
     "lib/*",
