@@ -1,11 +1,10 @@
 const { exec } = require('child_process');
 const { expect } = require('chai');
-const runner = './node_modules/.bin/codeceptjs run';
+const runner = './node_modules/.bin/codeceptjs run-worker 2';
 const mockTestrailConfig = './test/config/mock.testrail.js';
 const testrailPlugin = require('../index.js');
 
 describe('Incomplete info', () => {
-
 	describe('Missing host', () => {
 		it('should return error', () => {
 			try {
