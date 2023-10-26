@@ -1,4 +1,5 @@
 const { event } = require('codeceptjs');
+const { deepMerge } = require('codeceptjs/lib/utils');
 const Container = require('codeceptjs').container;
 const helpers = Container.helpers();
 const output = require('./lib/output');
@@ -34,7 +35,7 @@ for (const helperName of supportedHelpers) {
 }
 
 module.exports = (config) => {
-	config = Object.assign(defaultConfig, config);
+	config = deepMerge (defaultConfig, config);
 	output.showDebugLog(config.debugLog);
 
 	if (config.host === '' || config.user === '' || config.password === '') throw new Error('Please provide proper Testrail host or credentials');
@@ -118,13 +119,13 @@ module.exports = (config) => {
 
 	event.dispatcher.on(event.test.failed, async (test, err) => {
 		test.endTime = Date.now();
-		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
-		test.tags.forEach(async (tag) => {
+		test.elapsed = test.duration ? test.duration / 1000 : Math.round((test.endTime - test.startTime) / 1000);
+		for (const tag of test.tags) {
 			const uuid = Math.floor(new Date().getTime() / 1000);
 			const fileName = `${uuid}.failed.png`;
 			try {
-				output.log('Saving the screenshot...');
 				if (helper) {
+					output.log('Saving the screenshot...');
 					await helper.saveScreenshot(fileName);
 				}
 			} catch (error) {
@@ -139,15 +140,15 @@ module.exports = (config) => {
 					failedTestCaseIds.add(caseId);
 					failedTests.push({ case_id: caseId, elapsed: elapsed });
 				}
-				errors[tag.split(prefixTag)[1]] = err;
+				errors[tag.split(prefixTag)[1]] = err || test.err;
 				attachments[tag.split(prefixTag)[1]] = fileName;
 			}
-		});
+		}
 	});
 
 	event.dispatcher.on(event.test.passed, (test) => {
 		test.endTime = Date.now();
-		test.elapsed = Math.round((test.endTime - test.startTime) / 1000);
+		test.elapsed = test.startTime ? Math.round((test.endTime - test.startTime) / 1000) : 0;
 		test.tags.forEach(tag => {
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
@@ -161,7 +162,11 @@ module.exports = (config) => {
 		});
 	});
 
-	event.dispatcher.on(event.all.result, async () => {
+	event.dispatcher.on(event.workers.result, async () => {
+		await _publishResultsToTestrail();
+	});
+
+	async function _publishResultsToTestrail() {
 		const mergedTests = [...failedTests, ...passedTests, ...skippedTest]
 
 		let ids = [];
@@ -271,7 +276,7 @@ module.exports = (config) => {
 			// Assign extra/missing params for each FAILED test case
 			failedTests.forEach(test => {
 				let errorString = '';
-				if (errors[test.case_id]['message']) {
+				if (errors[test.case_id] && errors[test.case_id]['message']) {
 					errorString = errors[test.case_id]['message'].replace(/\u001b\[.*?m/g, '');
 				} else {
 					errorString = errors[test.case_id];
@@ -336,7 +341,7 @@ module.exports = (config) => {
 		} else {
 			output.log('There is no TC, hence no test run is created');
 		}
-	});
+	};
 
 	return this;
 };

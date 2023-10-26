@@ -21,10 +21,10 @@ npm i codeceptjs-testrail --save
 **Note:**
 
 - You should provide the test case id to make it works, otherwise, this plugin has no clue which case id to be added to test run on Testrail.
-- To avoid creating multiple testruns, add `--suites` to `run-workers` command
+- Only `run-workers` will push the results to Testrail.
 
 ```sh
-npx codeceptjs run-workers 3 --suites
+npx codeceptjs run-workers 3
 ```
 
 An example:
@@ -94,7 +94,7 @@ Add this plugin to config file:
 plugins: {
   testrail: {
     require: 'codeceptjs-testrail',
-    host: 'https://peternguyentr.testrail.io',
+    host: 'https://kobenguyent.testrail.io',
     user: 'username',
     password: 'password or api key',
     suiteId: 1,
