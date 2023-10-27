@@ -166,6 +166,10 @@ module.exports = (config) => {
 		await _publishResultsToTestrail();
 	});
 
+	event.dispatcher.on(event.all.result, async () => {
+		if (!process.env.RUN_WITH_WORKERS) await _publishResultsToTestrail();
+	});
+
 	async function _publishResultsToTestrail() {
 		const mergedTests = [...failedTests, ...passedTests, ...skippedTest]
 
@@ -341,7 +345,7 @@ module.exports = (config) => {
 		} else {
 			output.log('There is no TC, hence no test run is created');
 		}
-	};
+	}
 
 	return this;
 };

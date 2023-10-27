@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 const { expect } = require('chai');
-const runner = './node_modules/.bin/codeceptjs run-worker 2';
+const runner = './node_modules/.bin/codeceptjs run';
 const mockTestrailConfig = './test/config/mock.testrail.js';
 const testrailPlugin = require('../index.js');
 
