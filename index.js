@@ -1,5 +1,5 @@
 const { event } = require('codeceptjs');
-const { deepMerge } = require('codeceptjs/lib/utils');
+const { deepMerge, clearString } = require('codeceptjs/lib/utils');
 const Container = require('codeceptjs').container;
 const helpers = Container.helpers();
 const output = require('./lib/output');
@@ -162,12 +162,35 @@ module.exports = (config) => {
 		});
 	});
 
-	event.dispatcher.on(event.workers.result, async () => {
+	event.dispatcher.on(event.workers.result, async (result) => {
+		for (test of result.tests.passed) {
+			test.tags.forEach(tag => {
+				if (prefixRegExp.test(tag)) {
+					const caseId = tag.split(prefixTag)[1];
+					const elapsed = !test.duration ? defaultElapsedTime : `${test.duration / 1000}s`
+					passedTests.push({ case_id: caseId , elapsed });
+				}
+			})
+		}
+
+		for (test of result.tests.failed) {
+			test.tags.forEach(tag => {
+				if (prefixRegExp.test(tag)) {
+					const caseId = tag.split(prefixTag)[1];
+					const elapsed = !test.duration ? defaultElapsedTime : `${test.duration / 1000}s`
+
+					failedTests.push({ case_id: caseId, elapsed });
+					errors[caseId] = test.err;
+					attachments[caseId] = clearString(test.title) + '.failed.png';
+				}
+			})
+		}
+
 		await _publishResultsToTestrail();
 	});
 
 	event.dispatcher.on(event.all.result, async () => {
-		if (!process.env.RUN_WITH_WORKERS) await _publishResultsToTestrail();
+		if (!process.env.RUNS_WITH_WORKERS) await _publishResultsToTestrail();
 	});
 
 	async function _publishResultsToTestrail() {
@@ -287,7 +310,7 @@ module.exports = (config) => {
 				}
 				const testCase = {
 					failed: {
-						comment: config.testCase.failed.comment || `Test case C${test.case_id} is *FAILED* due to **${errorString}**`,
+						comment: config.testCase.failed.comment || `Test case C${test.case_id} is *FAILED* due to **${JSON.stringify(errorString)}**`,
 						status_id: config.testCase.failed.status_id,
 						version: config.version
 					}
