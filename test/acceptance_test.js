@@ -5,7 +5,6 @@ const mockTestrailConfig = './test/config/mock.testrail.js';
 const testrailPlugin = require('../index.js');
 
 describe('Incomplete info', () => {
-
 	describe('Missing host', () => {
 		it('should return error', () => {
 			try {
