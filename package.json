@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PeterNgTr/codeceptjs-testrail.git"
+    "url": "https://github.com/KobeNguyenT/codeceptjs-testrail.git"
   },
   "keywords": [
     "codeceptJS",
@@ -13,12 +13,12 @@
     "testrail",
     "testrail-plugin"
   ],
-  "author": "Thanh Nguyen <peter.nguyentr@gmail.com>",
+  "author": "kobenguyent <kobenguyent@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PeterNgTr/codeceptjs-testrail/issues"
+    "url": "https://github.com/KobeNguyenT/codeceptjs-testrail/issues"
   },
-  "homepage": "https://github.com/PeterNgTr/codeceptjs-testrail#readme",
+  "homepage": "https://github.com/KobeNguyenT/codeceptjs-testrail#readme",
   "dependencies": {
     "form-data": "3.0.0",
     "sprintf-js": "1.1.1",
