@@ -275,6 +275,7 @@ module.exports = (config) => {
 						runId = config.runId;
 					} else {
 						const res = await _addTestRun(config.projectId, suiteId, runName);
+						process.env.TESTRAIL_RUN_URL = res.url;
 						runId = res.id;
 					}
 
