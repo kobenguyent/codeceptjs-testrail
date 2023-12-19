@@ -1,5 +1,11 @@
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/peternguyew)
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e935df05fa244cf1bf435c3f59a66fe4)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-testrail?utm_source=github.com&utm_medium=referral&utm_content=PeterNgTr/codeceptjs-testrail&utm_campaign=Badge_Grade)
-![npm](https://img.shields.io/npm/v/codeceptjs-testrail?color=light%20green) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-testrail.svg)](https://greenkeeper.io/) [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/peternguyew)
+![npm](https://img.shields.io/npm/v/codeceptjs-testrail?color=light%20green) 
+
+[![NPM Package Publish](https://github.com/kobenguyent/codeceptjs-testrail/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/kobenguyent/codeceptjs-testrail/actions/workflows/npm-publish.yml)
+[![Tests](https://github.com/kobenguyent/codeceptjs-testrail/actions/workflows/run-tests.yml/badge.svg)](https://github.com/kobenguyent/codeceptjs-testrail/actions/workflows/run-tests.yml)
+
 
 ##### Testrail
 
