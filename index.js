@@ -187,10 +187,14 @@ module.exports = (config) => {
 		}
 
 		await _publishResultsToTestrail();
+		await _closeTestRun();
 	});
 
 	event.dispatcher.on(event.all.result, async () => {
-		if (!process.env.RUNS_WITH_WORKERS) await _publishResultsToTestrail();
+		if (!process.env.RUNS_WITH_WORKERS) {
+			await _publishResultsToTestrail();
+			await _closeTestRun();
+		}
 	});
 
 	async function _publishResultsToTestrail() {
@@ -357,17 +361,19 @@ module.exports = (config) => {
 								}
 							});
 						});
-
-						if (config.closeTestRun === true) {
-							testrail.closeTestRun(runId).then(res => {
-								output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
-							});
-						}
 					});
 				}
 			});
 		} else {
 			output.log('There is no TC, hence no test run is created');
+		}
+	}
+
+	async function _closeTestRun() {
+		if (config.closeTestRun === true) {
+			testrail.closeTestRun(runId).then(res => {
+				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
+			});
 		}
 	}
 
