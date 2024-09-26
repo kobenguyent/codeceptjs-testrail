@@ -350,15 +350,15 @@ module.exports = (config) => {
 					testrail.addResultsForCases(runId, { results: validResults }).then(res => {
 						output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
 
-						failedTests.forEach(test => {
-							testrail.getResultsForCase(runId, test.case_id).then(res => {
+						for (const test of failedTests) {
+							 testrail.getResultsForCase(runId, test.case_id).then(async res => {
 								try {
-									helper && testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
+									helper && await testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
 								} catch (err) {
 									output.error(`Cannot add attachment due to error: ${err}`)
 								}
 							});
-						});
+						}
 					});
 					_closeTestRun();
 				}
