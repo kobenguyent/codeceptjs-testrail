@@ -8,7 +8,7 @@
 [![Tests](https://github.com/kobenguyent/codeceptjs-testrail/actions/workflows/run-tests.yml/badge.svg)](https://github.com/kobenguyent/codeceptjs-testrail/actions/workflows/run-tests.yml)
 
 
-##### Testrail
+##### Introduction
 
 Testrail CodeceptJS Integration. The test run is created automatically after the execution. The screenshots of failed tests are also attached to test results.
 
