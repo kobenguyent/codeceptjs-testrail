@@ -187,13 +187,11 @@ module.exports = (config) => {
 		}
 
 		await _publishResultsToTestrail();
-		await _closeTestRun();
 	});
 
 	event.dispatcher.on(event.all.result, async () => {
 		if (!process.env.RUNS_WITH_WORKERS) {
 			await _publishResultsToTestrail();
-			await _closeTestRun();
 		}
 	});
 
@@ -362,6 +360,7 @@ module.exports = (config) => {
 							});
 						});
 					});
+					await _closeTestRun();
 				}
 			});
 		} else {
