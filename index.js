@@ -360,7 +360,7 @@ module.exports = (config) => {
 							});
 						});
 					});
-					await _closeTestRun();
+					_closeTestRun();
 				}
 			});
 		} else {
@@ -368,7 +368,7 @@ module.exports = (config) => {
 		}
 	}
 
-	async function _closeTestRun() {
+	function _closeTestRun() {
 		if (config.closeTestRun === true) {
 			testrail.closeTestRun(runId).then(res => {
 				output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
