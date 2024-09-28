@@ -1,9 +1,11 @@
 const { expect } = require('chai');
 const { faker } = require('@faker-js/faker');
-let userData;
-const {I} = inject();
+
+const { I } = inject();
 
 Feature('PUT tests');
+
+let userData;
 
 Before(() => {
 	userData = {
