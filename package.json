@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-testrail",
-  "version": "1.11.3",
+  "version": "1.11.4",
   "description": "CodeceptJS plugin for TestRail",
   "main": "index.js",
   "repository": {
