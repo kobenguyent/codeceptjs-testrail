@@ -20,6 +20,6 @@ exports.config = {
 			projectId: 1,
 			runName: 'Custom run name',
 			enabled: true
-		  }
+		}
 	}
 };

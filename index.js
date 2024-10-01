@@ -56,7 +56,7 @@ module.exports = (config) => {
 	runName = config.runName ? config.runName : `New test run on ${_getToday()}`;
 	prefixTag = config.prefixTag || '@C';
 
-	const prefixRegExp = new RegExp(`${prefixTag}\\d+`)
+	const prefixRegExp = new RegExp(`${prefixTag}\\d+`);
 
 	async function _updateTestRun(runId, ids) {
 		try {
@@ -90,7 +90,7 @@ module.exports = (config) => {
 	event.dispatcher.on(event.test.started, async (test) => {
 		if (test.body) {
 			if (test.body.includes('addExampleInTable')) {
-				const testRailTagRegExp = new RegExp(`"testRailTag":"(${prefixTag}\\d+)"`)
+				const testRailTagRegExp = new RegExp(`"testRailTag":"(${prefixTag}\\d+)"`);
 				const testRailTag = testRailTagRegExp.exec(test.title);
 				if (testRailTag) {
 					test.tags.push(testRailTag[1]);
@@ -108,7 +108,7 @@ module.exports = (config) => {
 		test.tags.forEach(tag => {
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
-				const elapsed = !test.elapsed ? defaultElapsedTime : `${test.elapsed}s`
+				const elapsed = !test.elapsed ? defaultElapsedTime : `${test.elapsed}s`;
 				if (!failedTestCaseIds.has(caseId)) {
 					// else it also failed on retry, so we shouldn't add in a duplicate
 					skippedTest.push({ case_id: caseId, elapsed: elapsed });
@@ -134,7 +134,7 @@ module.exports = (config) => {
 
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
-				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
+				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`;
 				if (!failedTestCaseIds.has(caseId)) {
 					// else it also failed on retry so we shouldnt add in a duplicate
 					failedTestCaseIds.add(caseId);
@@ -152,7 +152,7 @@ module.exports = (config) => {
 		test.tags.forEach(tag => {
 			if (prefixRegExp.test(tag)) {
 				const caseId = tag.split(prefixTag)[1];
-				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`
+				const elapsed = test.elapsed === 0 ? defaultElapsedTime : `${test.elapsed}s`;
 				// remove duplicates caused by retries
 				if (failedTestCaseIds.has(caseId)) {
 					failedTests = failedTests.filter(({ case_id }) => case_id !== caseId);
@@ -163,27 +163,27 @@ module.exports = (config) => {
 	});
 
 	event.dispatcher.on(event.workers.result, async (result) => {
-		for (test of result.tests.passed) {
+		for (const test of result.tests.passed) {
 			test.tags.forEach(tag => {
 				if (prefixRegExp.test(tag)) {
 					const caseId = tag.split(prefixTag)[1];
-					const elapsed = !test.duration ? defaultElapsedTime : `${test.duration / 1000}s`
+					const elapsed = !test.duration ? defaultElapsedTime : `${test.duration / 1000}s`;
 					passedTests.push({ case_id: caseId , elapsed });
 				}
-			})
+			});
 		}
 
-		for (test of result.tests.failed) {
+		for (const test of result.tests.failed) {
 			test.tags.forEach(tag => {
 				if (prefixRegExp.test(tag)) {
 					const caseId = tag.split(prefixTag)[1];
-					const elapsed = !test.duration ? defaultElapsedTime : `${test.duration / 1000}s`
+					const elapsed = !test.duration ? defaultElapsedTime : `${test.duration / 1000}s`;
 
 					failedTests.push({ case_id: caseId, elapsed });
 					errors[caseId] = test.err;
 					attachments[caseId] = clearString(test.title) + '.failed.png';
 				}
-			})
+			});
 		}
 
 		await _publishResultsToTestrail();
@@ -196,7 +196,7 @@ module.exports = (config) => {
 	});
 
 	async function _publishResultsToTestrail() {
-		const mergedTests = [...failedTests, ...passedTests, ...skippedTest]
+		const mergedTests = [...failedTests, ...passedTests, ...skippedTest];
 
 		let ids = [];
 		let config_ids = [];
@@ -246,7 +246,7 @@ module.exports = (config) => {
 					};
 
 					if (config.plan.onlyCaseIds) {
-						data = { ...data, case_ids: ids }
+						data = { ...data, case_ids: ids };
 					}
 
 					const res = await testrail.addPlanEntry(config.plan.existingPlanId, data);
@@ -282,7 +282,7 @@ module.exports = (config) => {
 					}
 
 					// Do not update the run if it is part of a plan, but this has not been specified in the config
-					const runData = await _getTestRun(runId)
+					const runData = await _getTestRun(runId);
 					if (runData && !runData.plan_id) {
 						await _updateTestRun(runId, ids);
 					}
@@ -299,7 +299,7 @@ module.exports = (config) => {
 						status_id: config.testCase.passed.status_id,
 						version: config.version
 					}
-				}
+				};
 				Object.assign(test, testCase.passed);
 			});
 
@@ -317,7 +317,7 @@ module.exports = (config) => {
 						status_id: config.testCase.failed.status_id,
 						version: config.version
 					}
-				}
+				};
 				Object.assign(test, testCase.failed);
 			});
 
@@ -328,7 +328,7 @@ module.exports = (config) => {
 						status_id: config.testCase.skipped.status_id,
 						version: config.version
 					}
-				}
+				};
 				Object.assign(test, testCase.failed);
 			});
 
@@ -346,16 +346,16 @@ module.exports = (config) => {
 					}
 				}
 			}).then(() => {
-				if (!!validResults.length) {
+				if (validResults.length) {
 					testrail.addResultsForCases(runId, { results: validResults }).then(res => {
 						output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
 
 						for (const test of failedTests) {
-							 testrail.getResultsForCase(runId, test.case_id).then(async res => {
+							testrail.getResultsForCase(runId, test.case_id).then(async res => {
 								try {
 									helper && await testrail.addAttachmentToResult(res[0].id, attachments[test.case_id]);
 								} catch (err) {
-									output.error(`Cannot add attachment due to error: ${err}`)
+									output.error(`Cannot add attachment due to error: ${err}`);
 								}
 							});
 						}
