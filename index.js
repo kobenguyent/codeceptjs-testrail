@@ -22,8 +22,10 @@ const defaultConfig = {
 		passed: { status_id: 1 },
 		failed: { status_id: 5 },
 	},
+	runId: undefined,
 	closeTestRun: true,
-	version: '1' // this is the build version - OPTIONAL
+	version: '1', // this is the build version - OPTIONAL,
+	resultProcessor: undefined
 };
 
 let helper;
@@ -38,8 +40,13 @@ module.exports = (config) => {
 	config = deepMerge (defaultConfig, config);
 	output.showDebugLog(config.debugLog);
 
-	if (config.host === '' || config.user === '' || config.password === '') throw new Error('Please provide proper Testrail host or credentials');
+	if (!config.host)  throw new Error('Please provide proper Testrail host');
+	if (!config.user) throw new Error('Please provide proper Testrail user');
+	if (!config.password) throw new Error('Please provide proper Testrail password');
 	if (!config.projectId) throw new Error('Please provide project id in config file');
+	if (config.resultProcessor && typeof config.resultProcessor !== 'function') {
+		throw new Error('Result processor (`resultProcessor` config option) has to be function');
+	}
 
 	const testrail = new TestRail(config);
 
@@ -202,7 +209,7 @@ module.exports = (config) => {
 		let config_ids = [];
 
 		mergedTests.forEach(test => {
-			for (let [key, value] of Object.entries(test)) {
+			for (const [key, value] of Object.entries(test)) {
 				if (key === 'case_id') {
 					ids.push(value);
 				}
@@ -334,20 +341,40 @@ module.exports = (config) => {
 
 			const allResults = passedTests.concat(failedTests.concat(skippedTest));
 
-			// Before POST-ing the results, filter the array for any non-existing tags in TR test bucket assigned to this test run
-			// This is to avoid any failure to POST results due to labels in the results array not part of the test run
-			let validResults = [];
-			testrail.getCases(config.projectId, config.suiteId).then(res => {
-				if (res.length) {
-					validResults = allResults.filter(result => res.find(tag => tag.id == result.case_id));
-					const missingLabels = allResults.filter(result => !validResults.find(vResult => vResult.case_id == result.case_id));
+			testrail.getCases(config.projectId, config.suiteId).then(testCases => {
+				if (testCases.length) {
+					// Before POST-ing the results, filter the array for any non-existing tags in TR test bucket assigned to this test run
+					// This is to avoid any failure to POST results due to labels in the results array not part of the test run
+					const { validResults, missingLabels } = allResults.reduce(
+						(acc, testResult) => {
+							const testCase = testCases.find(it => it.id == testResult.case_id);
+							// If there is `resultProcessor` callback in config, then we need to process test result
+							const processedResult = config.resultProcessor
+								? config.resultProcessor(testResult, { testCase, allResults, allTestCases: testCases })
+								: testResult;
+
+							if (processedResult) {
+								if (testCase) {
+									acc.validResults.push(processedResult);
+								} else {
+									acc.missingLabels.push(processedResult);
+								}
+							}
+							return acc;
+						},
+						{ validResults: [], missingLabels: [] }
+					);
+
 					if (missingLabels.length) {
 						output.error(`Error: some labels are missing from the test run and the results were not send through: ${JSON.stringify(missingLabels.map(l => l.case_id))}`);
 					}
+
+					return { validResults };
 				}
-			}).then(() => {
+				return { validResults: [] };
+			}).then(({ validResults }) => {
 				if (validResults.length) {
-					testrail.addResultsForCases(runId, { results: validResults }).then(res => {
+					testrail.addResultsForCases(runId, {results: validResults}).then(res => {
 						output.log(`The run ${runId} is updated with ${JSON.stringify(res)}`);
 
 						for (const test of failedTests) {
