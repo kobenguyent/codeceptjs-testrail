@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  lint-check:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,24 +22,7 @@ jobs:
         cache: 'npm'  # Enables caching for faster npm installs
 
     - run: npm ci
-      # Use npm ci instead of npm install for cleaner installs from package-lock.json
-
     - run: npm run lint
-      # Run linting checks
-
-  tests:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Node.js 20.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20.x'
-        cache: 'npm'  # Enables caching for faster npm installs
-
-    - run: npm ci
 
     - run: npm run test-server &
       # Starts test-server in the background
