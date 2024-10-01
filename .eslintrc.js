@@ -1,17 +1,17 @@
 module.exports = {
-	'env': {
-		'browser': true,
-		'es6': true,
-		'node': true,
-		'mocha': true
+	env: {
+		browser: true,
+		es6: true,
+		node: true,
+		mocha: true
 	},
-	'extends': ['eslint:recommended', 'plugin:codeceptjs/recommended'],
-	'parserOptions': {
-		'sourceType': 'module',
-		'ecmaVersion': 2020
+	extends: ['eslint:recommended', 'plugin:codeceptjs/recommended'],
+	parserOptions: {
+		sourceType: 'module',
+		ecmaVersion: 2020
 	},
-	'rules': {
-		'indent': [
+	rules: {
+		indent: [
 			'error',
 			'tab'
 		],
@@ -19,11 +19,11 @@ module.exports = {
 			'error',
 			'unix'
 		],
-		'quotes': [
+		quotes: [
 			'error',
 			'single'
 		],
-		'semi': [
+		semi: [
 			'error',
 			'always'
 		],
