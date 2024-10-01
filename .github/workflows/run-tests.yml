@@ -12,32 +12,41 @@ jobs:
   lint-check:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+
+    - name: Set up Node.js 20.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm i --force
+        node-version: '20.x'
+        cache: 'npm'  # Enables caching for faster npm installs
+
+    - run: npm ci
+      # Use npm ci instead of npm install for cleaner installs from package-lock.json
+
     - run: npm run lint
+      # Run linting checks
 
   tests:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+
+    - name: Set up Node.js 20.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm i --force
-    - run: npm run test-server
+        node-version: '20.x'
+        cache: 'npm'  # Enables caching for faster npm installs
+
+    - run: npm ci
+
+    - run: npm run test-server &
+      # Starts test-server in the background
+
+    - name: Wait for test-server
+      run: npx wait-on http://localhost:3000
+      # Ensure the test-server is running and accessible
+
     - run: npm run acceptance_test
+      # Run the acceptance tests after the server is available
