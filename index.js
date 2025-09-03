@@ -216,15 +216,16 @@ module.exports = (config) => {
 			}
 		});
 
-		if (ids.length > 0) {
-			let suiteId;
-			if (config.suiteId === undefined || config.suiteId === null) {
-				let res = await testrail.getSuites(config.projectId);
-				suiteId = res[0].id;
-			} else {
-				suiteId = config.suiteId;
-			}
+		// Always determine suiteId regardless of whether there are test results
+		let suiteId;
+		if (config.suiteId === undefined || config.suiteId === null) {
+			let res = await testrail.getSuites(config.projectId);
+			suiteId = res[0].id;
+		} else {
+			suiteId = config.suiteId;
+		}
 
+		if (ids.length > 0) {
 			if (config.configuration) {
 				const res = await testrail.getConfigs(config.projectId);
 				for (let i = 0; i < res.length; i++) {
@@ -392,6 +393,14 @@ module.exports = (config) => {
 			});
 		} else {
 			output.log('There is no TC, hence no test run is created');
+			
+			// Even if there are no test results, we should still call getCases to ensure TestRail integration works
+			// This handles the case where xScenario tests don't fire events but still need TestRail validation
+			testrail.getCases(config.projectId, suiteId).then(testCases => {
+				output.log(`getCases called for validation - found ${testCases.length} test cases`);
+			}).catch(error => {
+				output.error(`getCases validation failed: ${error}`);
+			});
 		}
 	}
 

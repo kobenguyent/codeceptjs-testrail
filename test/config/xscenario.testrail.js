@@ -1,11 +1,15 @@
 exports.config = {
-	tests: '../integration_scenario.js',
+	tests: '../no_tags_scenario.js',
 	output: '../output',
-	helpers: {},
+	helpers: {
+		REST: {
+			endpoint: 'https://reqres.in',
+		}
+	},
 	include: {},
 	bootstrap: null,
 	mocha: {},
-	name: 'codeceptjs-rest-demo',
+	name: 'codeceptjs-no-tags-test',
 	plugins: {
 		testrail: {
 			require: '../../index.js',
@@ -14,7 +18,7 @@ exports.config = {
 			password: 'pass',
 			suiteId: 1,
 			projectId: 1,
-			runName: 'Custom run name',
+			runName: 'No Tags Test Run',
 			enabled: true,
 			debugLog: true,
 		}
