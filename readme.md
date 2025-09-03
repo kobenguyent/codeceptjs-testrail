@@ -12,6 +12,14 @@
 
 Testrail CodeceptJS Integration. The test run is created automatically after the test execution. The screenshots of failed tests are also attached to test results.
 
+**Features:**
+- ✅ Support for both **CommonJS** and **ES Modules (ESM)**
+- ✅ Automatic test run creation  
+- ✅ Screenshot attachment for failed tests
+- ✅ Configuration support for test plans
+- ✅ Result processor for custom field handling
+- ✅ Worker support for parallel execution
+
 ![Attachemnt for failed case](http://g.recordit.co/ajaa2QRlnW.gif)
 
 New feature, add the configuration to test run of test plan
@@ -23,6 +31,20 @@ Install to use this custom plugin
 
 ```sh
 npm i codeceptjs-testrail --save
+```
+
+### Module Support
+
+This plugin supports both CommonJS and ES Modules:
+
+**CommonJS (require):**
+```js
+const testrailPlugin = require('codeceptjs-testrail');
+```
+
+**ES Modules (import):**
+```js
+import testrailPlugin from 'codeceptjs-testrail';
 ```
 
 **Note:**
@@ -96,7 +118,10 @@ TestRail tag in **Examples** from **Scenario Outline** available from version `1
 
 Add this plugin to config file:
 
+### CommonJS Configuration
+
 ```js
+// codecept.conf.js
 // ...
 plugins: {
   // ...
@@ -145,6 +170,30 @@ plugins: {
 // ...
 ```
 
+### ESM Configuration
+
+```js
+// codecept.conf.mjs
+import testrailPlugin from 'codeceptjs-testrail';
+
+// ...
+plugins: {
+  // ...
+  testrail: {
+    require: testrailPlugin,
+    host: 'https://kobenguyent.testrail.io',
+    user: 'username',
+    password: 'password or api key',
+    suiteId: 1,
+    projectId: 1,
+    runName: 'Custom run name',
+    // ... rest of configuration same as CommonJS
+  }
+  // ...
+}
+// ...
+```
+
 ### Possible config options:
 
 | config name           | required | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -169,3 +218,12 @@ plugins: {
 ## Contributing
 
 [Read here](./.github/CONTRIBUTING.md)
+
+## Changelog
+
+### Latest Improvements
+
+- ✅ **Added ESM Support**: The plugin now supports both CommonJS and ES Modules
+- ✅ **Code Quality**: Fixed deprecated `new Buffer()` usage, replaced with `Buffer.from()`  
+- ✅ **Enhanced Tests**: Added comprehensive unit tests for both CommonJS and ESM imports
+- ✅ **Better Documentation**: Updated README with ESM examples and improved configuration documentation
