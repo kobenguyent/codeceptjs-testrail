@@ -1,9 +1,46 @@
 {
   "get_configs": [],
-  "add_run": [],
-  "update_run": [],
+  "add_run": [
+    {
+      "suite_id": 1,
+      "name": "xScenario Test Run",
+      "include_all": false,
+      "id": 1
+    },
+    {
+      "suite_id": 1,
+      "name": "xScenario Test Run",
+      "include_all": false,
+      "id": 2
+    }
+  ],
+  "update_run": [
+    {
+      "case_ids": [
+        "1",
+        "2",
+        "3"
+      ],
+      "id": 1
+    },
+    {
+      "case_ids": [
+        "1",
+        "2",
+        "3"
+      ],
+      "id": 2
+    }
+  ],
   "get_run": {},
   "add_results_for_cases": [],
-  "get_cases": [{"id": "1"}, {"id": "2"}],
+  "get_cases": [
+    {
+      "id": "1"
+    },
+    {
+      "id": "2"
+    }
+  ],
   "get_results_for_case": []
 }
