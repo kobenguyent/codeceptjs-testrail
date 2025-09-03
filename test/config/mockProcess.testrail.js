@@ -1,11 +1,7 @@
 exports.config = {
-	tests: '../scenario.js',
+	tests: '../integration_scenario.js',
 	output: '../output',
-	helpers: {
-		REST: {
-			endpoint: 'https://reqres.in',
-		}
-	},
+	helpers: {},
 	include: {},
 	bootstrap: null,
 	mocha: {},

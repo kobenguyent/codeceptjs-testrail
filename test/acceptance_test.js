@@ -75,7 +75,7 @@ describe('Valid config file', () => {
 		it('should update the results on passed case', (done) => {
 			exec(`${runner} --grep "@pass" -c "${mockTestrailConfigs.general}"`, (err, stdout) => {
 				expect(stdout).to.include('addRun: SUCCESS - the request data is {"suite_id":1,"name":"Custom run name","include_all":false}');
-				expect(stdout).to.include('addRun: SUCCESS - the response data is {"suite_id":1,"name":"Custom run name","include_all":false,"id":1}');
+				expect(stdout).to.match(/addRun: SUCCESS - the response data is \{"suite_id":1,"name":"Custom run name","include_all":false,"id":\d+\}/);
 				done();
 			});
 		});
@@ -84,7 +84,7 @@ describe('Valid config file', () => {
 			exec(`${runner} --grep "@fail" -c "${mockTestrailConfigs.general}"`, (err, stdout) => {
 				expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
 				expect(stdout).to.include('addRun: SUCCESS - the request data is {"suite_id":1,"name":"Custom run name","include_all":false}');
-				expect(stdout).to.include('addRun: SUCCESS - the response data is {"suite_id":1,"name":"Custom run name","include_all":false,"id":2}');
+				expect(stdout).to.match(/addRun: SUCCESS - the response data is \{"suite_id":1,"name":"Custom run name","include_all":false,"id":\d+\}/);
 				done();
 			});
 		});

@@ -3,37 +3,265 @@
   "add_run": [
     {
       "suite_id": 1,
-      "name": "xScenario Test Run",
+      "name": "Custom run name",
       "include_all": false,
       "id": 1
     },
     {
       "suite_id": 1,
-      "name": "xScenario Test Run",
+      "name": "Custom run name",
       "include_all": false,
       "id": 2
+    },
+    {
+      "suite_id": 1,
+      "name": "Custom run name",
+      "include_all": false,
+      "id": 3
+    },
+    {
+      "suite_id": 1,
+      "name": "Custom run name",
+      "include_all": false,
+      "id": 4
+    },
+    {
+      "suite_id": 1,
+      "name": "Custom run name",
+      "include_all": false,
+      "id": 5
+    },
+    {
+      "suite_id": 1,
+      "name": "Custom run name",
+      "include_all": false,
+      "id": 6
+    },
+    {
+      "suite_id": 1,
+      "name": "Custom run name",
+      "include_all": false,
+      "id": 7
+    },
+    {
+      "suite_id": 1,
+      "name": "Custom run name",
+      "include_all": false,
+      "id": 8
     }
   ],
   "update_run": [
     {
       "case_ids": [
-        "1",
-        "2",
-        "3"
+        "1"
       ],
       "id": 1
     },
     {
       "case_ids": [
-        "1",
-        "2",
-        "3"
+        "2"
       ],
       "id": 2
+    },
+    {
+      "case_ids": [
+        "1"
+      ],
+      "id": 3
+    },
+    {
+      "case_ids": [
+        "2"
+      ],
+      "id": 4
+    },
+    {
+      "case_ids": [
+        "1"
+      ],
+      "id": 5
+    },
+    {
+      "case_ids": [
+        "1"
+      ],
+      "id": 6
+    },
+    {
+      "case_ids": [
+        "2"
+      ],
+      "id": 7
+    },
+    {
+      "case_ids": [
+        "1"
+      ],
+      "id": 8
+    },
+    {
+      "case_ids": [
+        "2"
+      ],
+      "id": 9
+    },
+    {
+      "case_ids": [
+        "1"
+      ],
+      "id": 10
+    },
+    {
+      "case_ids": [
+        "2"
+      ],
+      "id": 11
     }
   ],
   "get_run": {},
-  "add_results_for_cases": [],
+  "add_results_for_cases": [
+    {
+      "results": [
+        {
+          "case_id": "1",
+          "elapsed": "1s",
+          "comment": "Test case @C1 is *PASSED*.",
+          "status_id": 1,
+          "version": "1"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "results": [
+        {
+          "case_id": "2",
+          "elapsed": "1s",
+          "comment": "Test case C2 is *FAILED* due to **\"expected 1 to equal 2\"**",
+          "status_id": 5,
+          "version": "1"
+        }
+      ],
+      "id": 2
+    },
+    {
+      "results": [
+        {
+          "case_id": "1",
+          "elapsed": "1s",
+          "comment": "PASS COMMENT",
+          "status_id": 1,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 3
+    },
+    {
+      "results": [
+        {
+          "case_id": "2",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 4
+    },
+    {
+      "results": [
+        {
+          "case_id": "1",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 5
+    },
+    {
+      "results": [
+        {
+          "case_id": "1",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 6
+    },
+    {
+      "results": [
+        {
+          "case_id": "2",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 7
+    },
+    {
+      "results": [
+        {
+          "case_id": "1",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 8
+    },
+    {
+      "results": [
+        {
+          "case_id": "2",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 9
+    },
+    {
+      "results": [
+        {
+          "case_id": "1",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 10
+    },
+    {
+      "results": [
+        {
+          "case_id": "2",
+          "elapsed": "1s",
+          "comment": "FAIL COMMENT",
+          "status_id": 5,
+          "version": "1",
+          "my_test_custom_field": 777
+        }
+      ],
+      "id": 11
+    }
+  ],
   "get_cases": [
     {
       "id": "1"
